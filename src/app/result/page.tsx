@@ -69,12 +69,12 @@ export default function ResultPage() {
     <div className="min-h-screen flex flex-col justify-center items-center px-6 py-10">
       <div className="max-w-xl w-full space-y-6">
         <h1 className="text-3xl font-bold text-center">
-          당신의 감정 성향은: {result.title} ({result.type})
+          당신의 감정 성향은: {result.title}
         </h1>
         <p className="text-gray-700 text-lg text-center">
           {result.description}
         </p>
-        <p className="mt-4 text-purple-600 italic">{result.tmi}</p>
+        <p className="mt-4 text-purple-600 italic text-center ">{result.tmi}</p>
 
         {reaction && (
           <div className="flex flex-col items-center gap-4">
@@ -83,9 +83,9 @@ export default function ResultPage() {
               alt="성향 반응 이미지"
               className="w-full max-w-xs rounded-xl shadow-md"
             />
-            <p className="text-center text-purple-700 font-semibold">
+            {/* <p className="text-center text-purple-700 font-semibold">
               {reaction.quote}
-            </p>
+            </p> */}
           </div>
         )}
 
