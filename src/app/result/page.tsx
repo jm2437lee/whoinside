@@ -10,7 +10,7 @@ import { calculateResult } from "@/app/lib/calculateResult";
 import { ResultActions } from "@/components/ResultActions";
 import { Button } from "@/components/ui/button";
 import Script from "next/script";
-
+import KakaoShareButton from "@/components/KakaoShareButton";
 const reactionGifs: Record<string, { img: string; quote: string }> = {
   A1: {
     img: "/gifs/a1.gif",
@@ -137,8 +137,9 @@ export default function ResultPage() {
           <p className="mt-4 text-purple-600 italic text-center ">
             {result.tmi}
           </p>
-
-          <Button onClick={handleKakaoShare}>카카오톡으로 공유하기</Button>
+          <p className="text-center flex justify-center">
+            <KakaoShareButton onClick={handleKakaoShare} />
+          </p>
 
           {reaction && (
             <div className="flex flex-col items-center gap-4">
