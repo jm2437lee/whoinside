@@ -20,7 +20,7 @@ export default function KakaoShareButton({ onClick }: KakaoShareButtonProps) {
         height={40}
         priority
       />
-      <span className="font-medium text-sm">카카오톡으로 공유하기</span>
+      <span className="font-medium text-sm">내 친구는 나와 잘맞을까?</span>
     </button>
   );
 }

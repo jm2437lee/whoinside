@@ -13,35 +13,35 @@ import Script from "next/script";
 import KakaoShareButton from "@/components/KakaoShareButton";
 const reactionGifs: Record<string, { img: string; quote: string }> = {
   A1: {
-    img: "/gifs/a1.gif",
+    img: "/gifs/a1.jpg",
     quote: "감정은 사소해도 치명적... 머릿속에서 떠나지 않아🥺",
   },
   A2: {
-    img: "/gifs/a2.gif",
+    img: "/gifs/a2.jpg",
     quote: "혼자 조용히 넘기려 했지만... 마음속 파도는 여전해🌊",
   },
   B1: {
-    img: "/gifs/b1.gif",
+    img: "/gifs/b1.jpg",
     quote: "감정이 복잡할 땐 거리두기! 피하면 편해요✌️",
   },
   B2: {
-    img: "/gifs/b2.gif",
+    img: "/gifs/a1.jpg",
     quote: "갈등은 끊어내는 게 제일 깔끔하죠🔪",
   },
   C1: {
-    img: "/gifs/c1.gif",
+    img: "/gifs/b1.jpg",
     quote: "감정보다 이성이 먼저! 공감보다 논리🧠",
   },
   C2: {
-    img: "/gifs/c2.gif",
+    img: "/gifs/a2.jpg",
     quote: "쿨한 무심함. 감정? 신경 안 씀😎",
   },
   D1: {
-    img: "/gifs/d1.gif",
+    img: "/gifs/a1.jpg",
     quote: "말 안 하면 터져요! 지금 바로 표현하는 편🔥",
   },
   D2: {
-    img: "/gifs/d2.gif",
+    img: "/gifs/b1.jpg",
     quote: "참다가 폭발! 그동안 쌓인 감정이 퐁!💥",
   },
 };
@@ -134,12 +134,6 @@ export default function ResultPage() {
           <p className="text-gray-700 text-lg text-center">
             {result.description}
           </p>
-          <p className="mt-4 text-purple-600 italic text-center ">
-            {result.tmi}
-          </p>
-          <p className="text-center flex justify-center">
-            <KakaoShareButton onClick={handleKakaoShare} />
-          </p>
 
           {reaction && (
             <div className="flex flex-col items-center gap-4">
@@ -149,10 +143,16 @@ export default function ResultPage() {
                 className="w-full max-w-xs rounded-xl shadow-md"
               />
               {/* <p className="text-center text-purple-700 font-semibold">
-              {reaction.quote}
-            </p> */}
+    {reaction.quote}
+  </p> */}
             </div>
           )}
+          <p className="mt-4 text-purple-600 italic text-center ">
+            {result.tmi}
+          </p>
+          <p className="text-center flex justify-center">
+            <KakaoShareButton onClick={handleKakaoShare} />
+          </p>
 
           <ResultActions />
         </div>
