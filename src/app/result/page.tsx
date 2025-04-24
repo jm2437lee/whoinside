@@ -1,5 +1,10 @@
 "use client";
 
+declare global {
+  interface Window {
+    Kakao: any;
+  }
+}
 import * as React from "react";
 import { calculateResult } from "@/app/lib/calculateResult";
 import { ResultActions } from "@/components/ResultActions";
