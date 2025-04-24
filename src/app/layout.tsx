@@ -1,9 +1,6 @@
 import type React from "react";
 import "@/app/globals.css";
-import { Inter } from "next/font/google";
 import Script from "next/script"; // ✅ 이거 꼭 추가!
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "감정 성향 테스트 | 당신의 감정 성향을 알아보세요",
