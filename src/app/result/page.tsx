@@ -61,7 +61,7 @@ export default function ResultPage() {
   }, []);
 
   if (!result)
-    return <div className="text-center py-20">결과를 불러오는 중...</div>;
+    return <div className="text-center py-20">결과를 불러오는 중...1</div>;
 
   const reaction = reactionGifs[result.type];
 
