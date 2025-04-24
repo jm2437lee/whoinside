@@ -3,6 +3,8 @@
 import * as React from "react";
 import { calculateResult } from "@/app/lib/calculateResult";
 import { ResultActions } from "@/components/ResultActions";
+import { Button } from "@/components/ui/button";
+import Script from "next/script";
 
 const reactionGifs: Record<string, { img: string; quote: string }> = {
   A1: {
@@ -42,7 +44,47 @@ const reactionGifs: Record<string, { img: string; quote: string }> = {
 export default function ResultPage() {
   const [result, setResult] = React.useState<any>(null);
 
+  const handleKakaoShare = () => {
+    const uuid = localStorage.getItem("uuid") || "anonymous";
+    const shareUrl = `https://whoinside.vercel.app/?from=${uuid}`;
+
+    if (window.Kakao) {
+      window.Kakao.Share.sendDefault({
+        objectType: "feed",
+        content: {
+          title: "나의 감정 성향, 궁금하지 않아?",
+          description: "우리 궁합은 얼마나 잘 맞을까? 👀",
+          imageUrl: "https://yourdomain.com/static/og-image.jpg", // 썸네일 이미지
+          link: {
+            mobileWebUrl: shareUrl,
+            webUrl: shareUrl,
+          },
+        },
+        buttons: [
+          {
+            title: "나도 테스트하러 가기",
+            link: {
+              mobileWebUrl: shareUrl,
+              webUrl: shareUrl,
+            },
+          },
+        ],
+      });
+    }
+  };
+
   React.useEffect(() => {
+    const uuid = localStorage.getItem("uuid") || crypto.randomUUID();
+    localStorage.setItem("uuid", uuid);
+
+    if (
+      typeof window !== "undefined" &&
+      window.Kakao &&
+      !window.Kakao.isInitialized()
+    ) {
+      window.Kakao.init("47e9e842805216474700f75e72891072"); // ✅ 발급받은 키로 교체
+    }
+
     const answers: string[] = [];
     for (let i = 1; i <= 10; i++) {
       const value = localStorage.getItem(`Q${i}`);
@@ -58,6 +100,14 @@ export default function ResultPage() {
         tmi,
       });
     }
+
+    if (
+      typeof window !== "undefined" &&
+      window.Kakao &&
+      !window.Kakao.isInitialized()
+    ) {
+      window.Kakao.init("47e9e842805216474700f75e72891072"); // 👉 발급받은 JS 키로 교체
+    }
   }, []);
 
   if (!result)
@@ -66,31 +116,41 @@ export default function ResultPage() {
   const reaction = reactionGifs[result.type];
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center px-6 py-10">
-      <div className="max-w-xl w-full space-y-6">
-        <h1 className="text-3xl font-bold text-center">
-          당신의 감정 성향은: {result.title}
-        </h1>
-        <p className="text-gray-700 text-lg text-center">
-          {result.description}
-        </p>
-        <p className="mt-4 text-purple-600 italic text-center ">{result.tmi}</p>
+    <>
+      <Script
+        src="https://developers.kakao.com/sdk/js/kakao.js"
+        strategy="beforeInteractive"
+      />
+      <div className="min-h-screen flex flex-col justify-center items-center px-6 py-10">
+        <div className="max-w-xl w-full space-y-6">
+          <h1 className="text-3xl font-bold text-center">
+            당신의 감정 성향은: {result.title}
+          </h1>
+          <p className="text-gray-700 text-lg text-center">
+            {result.description}
+          </p>
+          <p className="mt-4 text-purple-600 italic text-center ">
+            {result.tmi}
+          </p>
 
-        {reaction && (
-          <div className="flex flex-col items-center gap-4">
-            <img
-              src={reaction.img}
-              alt="성향 반응 이미지"
-              className="w-full max-w-xs rounded-xl shadow-md"
-            />
-            {/* <p className="text-center text-purple-700 font-semibold">
+          <Button onClick={handleKakaoShare}>카카오톡으로 공유하기</Button>
+
+          {reaction && (
+            <div className="flex flex-col items-center gap-4">
+              <img
+                src={reaction.img}
+                alt="성향 반응 이미지"
+                className="w-full max-w-xs rounded-xl shadow-md"
+              />
+              {/* <p className="text-center text-purple-700 font-semibold">
               {reaction.quote}
             </p> */}
-          </div>
-        )}
+            </div>
+          )}
 
-        <ResultActions />
+          <ResultActions />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
