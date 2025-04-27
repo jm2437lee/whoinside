@@ -12,9 +12,12 @@ import { Button } from "@/components/ui/button";
 import Script from "next/script";
 import KakaoShareButton from "@/components/KakaoShareButton";
 import NicknameModal from "@/components/NicknameModal";
-import { useSearchParams } from "next/navigation";
+// import { useSearchParams } from "next/navigation";
 import compatibilityDescriptions from "@/data/compatibilityDescriptions.json";
 import Image from "next/image";
+import { Suspense } from "react";
+import { SearchParamsHandler } from "@/components/SearchParamsHandler";
+
 const reactionGifs: Record<string, { img: string; quote: string }> = {
   A1: {
     img: "/gifs/a1.png",
@@ -51,12 +54,11 @@ const reactionGifs: Record<string, { img: string; quote: string }> = {
 };
 
 export default function ResultPage() {
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
   const [result, setResult] = React.useState<any>(null);
   const [showModal, setShowModal] = React.useState(false);
-  const [nickname, setNickname] = React.useState(""); // 입력된 닉네임
   const [fromInfo, setFromInfo] = React.useState<{
-    fromUuid: string;
+    from: string;
     fromType: string;
     fromNickname: string;
   } | null>(null);
@@ -65,7 +67,7 @@ export default function ResultPage() {
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
 
-  const handleKakaoShare = () => {
+  const handleKakaoShare = (nickname: string) => {
     const uuid = localStorage.getItem("uuid") || "anonymous";
     // const shareUrl = `https://whoinside.vercel.app/?from=${uuid}&type=${
     //   result?.type
@@ -137,13 +139,13 @@ export default function ResultPage() {
 
   React.useEffect(() => {
     // 공유자 정보 가져오기
-    const fromUuid = localStorage.getItem("fromUuid");
+    const from = localStorage.getItem("from");
     const fromType = localStorage.getItem("fromType");
     const fromNickname = localStorage.getItem("fromNickname");
 
-    if (fromUuid && fromType && fromNickname) {
+    if (from && fromType && fromNickname) {
       setFromInfo({
-        fromUuid: fromUuid,
+        from: from,
         fromType,
         fromNickname: decodeURIComponent(fromNickname),
       });
@@ -175,14 +177,16 @@ export default function ResultPage() {
   const confirmNicknameAndShare = (nicknameInput: string) => {
     closeModal();
     setTimeout(() => {
-      setNickname(nicknameInput);
       // localStorage.setItem("nickname", nicknameInput);
-      handleKakaoShare();
+      handleKakaoShare(nicknameInput);
     }, 200); // 살짝 딜레이 줘서 자연스럽게
   };
 
   return (
     <>
+      <Suspense fallback={null}>
+        <SearchParamsHandler />
+      </Suspense>
       <Script
         src="https://developers.kakao.com/sdk/js/kakao.js"
         strategy="beforeInteractive"

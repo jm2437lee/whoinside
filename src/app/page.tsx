@@ -4,25 +4,25 @@ import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { Suspense } from "react";
+import { SearchParamsHandler } from "@/components/SearchParamsHandler";
+// function SearchParamsHandler() {
+//   const searchParams = useSearchParams();
 
-function SearchParamsHandler() {
-  const searchParams = useSearchParams();
+//   // 여기서 localStorage 저장 로직 작성
+//   useEffect(() => {
+//     const from = searchParams.get("from");
+//     const type = searchParams.get("type");
+//     const nickname = searchParams.get("nickname");
 
-  // 여기서 localStorage 저장 로직 작성
-  useEffect(() => {
-    const from = searchParams.get("from");
-    const type = searchParams.get("type");
-    const nickname = searchParams.get("nickname");
+//     if (from && type && nickname) {
+//       localStorage.setItem("from", from);
+//       localStorage.setItem("fromType", type);
+//       localStorage.setItem("fromNickname", nickname);
+//     }
+//   }, [searchParams]);
 
-    if (from && type && nickname) {
-      localStorage.setItem("from", from);
-      localStorage.setItem("fromType", type);
-      localStorage.setItem("fromNickname", nickname);
-    }
-  }, [searchParams]);
-
-  return null; // 렌더링 안 해도 됨
-}
+//   return null; // 렌더링 안 해도 됨
+// }
 
 export default function LandingPage() {
   // const searchParams = useSearchParams();
