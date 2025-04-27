@@ -14,7 +14,7 @@ import KakaoShareButton from "@/components/KakaoShareButton";
 import NicknameModal from "@/components/NicknameModal";
 import { useSearchParams } from "next/navigation";
 import compatibilityDescriptions from "@/data/compatibilityDescriptions.json";
-
+import Image from "next/image";
 const reactionGifs: Record<string, { img: string; quote: string }> = {
   A1: {
     img: "/gifs/a1.png",
@@ -200,10 +200,14 @@ export default function ResultPage() {
           </p>
           {reaction && (
             <div className="flex flex-col items-center gap-4">
-              <img
+              <Image
                 src={reaction.img}
                 alt="성향 반응 이미지"
+                width={0}
+                height={0}
+                sizes="100vw"
                 className="w-full max-w-xs rounded-xl shadow-md"
+                style={{ width: "auto", height: "auto" }}
               />
               {/* <p className="text-center text-purple-700 font-semibold">
     {reaction.quote}
@@ -222,7 +226,7 @@ export default function ResultPage() {
                 <span className="text-gray-500 font-normal text-lg">
                   님과의 궁합
                 </span>
-                <div>"{compatibility?.title}"</div>
+                <div>&quot;{compatibility?.title}&quot;</div>
               </h2>
               {compatibility ? (
                 <>
