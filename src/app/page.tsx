@@ -3,25 +3,49 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import { Suspense } from "react";
 
-export default function LandingPage() {
+function SearchParamsHandler() {
   const searchParams = useSearchParams();
 
+  // 여기서 localStorage 저장 로직 작성
   useEffect(() => {
     const from = searchParams.get("from");
     const type = searchParams.get("type");
     const nickname = searchParams.get("nickname");
 
     if (from && type && nickname) {
-      localStorage.setItem("fromUuid", from);
+      localStorage.setItem("from", from);
       localStorage.setItem("fromType", type);
-      localStorage.setItem("fromNickname", decodeURIComponent(nickname));
+      localStorage.setItem("fromNickname", nickname);
     }
   }, [searchParams]);
+
+  return null; // 렌더링 안 해도 됨
+}
+
+export default function LandingPage() {
+  // const searchParams = useSearchParams();
+
+  // useEffect(() => {
+  //   const from = searchParams.get("from");
+  //   const type = searchParams.get("type");
+  //   const nickname = searchParams.get("nickname");
+
+  //   if (from && type && nickname) {
+  //     localStorage.setItem("fromUuid", from);
+  //     localStorage.setItem("fromType", type);
+  //     localStorage.setItem("fromNickname", decodeURIComponent(nickname));
+  //   }
+  // }, [searchParams]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       <main className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen text-center">
+        {/* 여기 추가 */}
+        <Suspense fallback={null}>
+          <SearchParamsHandler />
+        </Suspense>
         <div className="max-w-3xl mx-auto space-y-8">
           <div className="space-y-2">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tighter text-purple-900">
