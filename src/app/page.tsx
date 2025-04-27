@@ -8,7 +8,7 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto space-y-8">
           <div className="space-y-2">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tighter text-purple-900">
-              감정 성향 테스트22
+              감정 성향 테스트
             </h1>
             <p className="text-lg md:text-xl text-purple-700 mt-4">
               10가지 질문으로 알아보는 당신의 감정 성향
