@@ -27,6 +27,13 @@ export default function NicknameModal({
           placeholder="당신의 닉네임을 입력하세요"
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              if (nickname.trim()) {
+                onConfirm(nickname.trim());
+              }
+            }
+          }}
         />
         <div className="flex gap-4 justify-center">
           <Button variant="outline" onClick={onClose}>

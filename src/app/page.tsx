@@ -1,7 +1,24 @@
+"use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 export default function LandingPage() {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const from = searchParams.get("from");
+    const type = searchParams.get("type");
+    const nickname = searchParams.get("nickname");
+
+    if (from && type && nickname) {
+      localStorage.setItem("fromUuid", from);
+      localStorage.setItem("fromType", type);
+      localStorage.setItem("fromNickname", decodeURIComponent(nickname));
+    }
+  }, [searchParams]);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       <main className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen text-center">

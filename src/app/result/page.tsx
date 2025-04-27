@@ -12,53 +12,67 @@ import { Button } from "@/components/ui/button";
 import Script from "next/script";
 import KakaoShareButton from "@/components/KakaoShareButton";
 import NicknameModal from "@/components/NicknameModal";
+import { useSearchParams } from "next/navigation";
+import compatibilityDescriptions from "@/data/compatibilityDescriptions.json";
 
 const reactionGifs: Record<string, { img: string; quote: string }> = {
   A1: {
-    img: "/gifs/a1.jpg",
+    img: "/gifs/a1.png",
     quote: "감정은 사소해도 치명적... 머릿속에서 떠나지 않아🥺",
   },
   A2: {
-    img: "/gifs/a2.jpg",
+    img: "/gifs/a2.png",
     quote: "혼자 조용히 넘기려 했지만... 마음속 파도는 여전해🌊",
   },
   B1: {
-    img: "/gifs/b1.jpg",
+    img: "/gifs/b1.png",
     quote: "감정이 복잡할 땐 거리두기! 피하면 편해요✌️",
   },
   B2: {
-    img: "/gifs/a1.jpg",
+    img: "/gifs/b2.png",
     quote: "갈등은 끊어내는 게 제일 깔끔하죠🔪",
   },
   C1: {
-    img: "/gifs/b1.jpg",
+    img: "/gifs/c1.png",
     quote: "감정보다 이성이 먼저! 공감보다 논리🧠",
   },
   C2: {
-    img: "/gifs/a2.jpg",
+    img: "/gifs/c2.png",
     quote: "쿨한 무심함. 감정? 신경 안 씀😎",
   },
   D1: {
-    img: "/gifs/a1.jpg",
+    img: "/gifs/d1.png",
     quote: "말 안 하면 터져요! 지금 바로 표현하는 편🔥",
   },
   D2: {
-    img: "/gifs/b1.jpg",
+    img: "/gifs/d2.png",
     quote: "참다가 폭발! 그동안 쌓인 감정이 퐁!💥",
   },
 };
 
 export default function ResultPage() {
+  const searchParams = useSearchParams();
   const [result, setResult] = React.useState<any>(null);
   const [showModal, setShowModal] = React.useState(false);
   const [nickname, setNickname] = React.useState(""); // 입력된 닉네임
+  const [fromInfo, setFromInfo] = React.useState<{
+    fromUuid: string;
+    fromType: string;
+    fromNickname: string;
+  } | null>(null);
+  const [compatibility, setCompatibility] = React.useState<any>(null);
 
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
 
   const handleKakaoShare = () => {
     const uuid = localStorage.getItem("uuid") || "anonymous";
-    const shareUrl = `https://whoinside.vercel.app/?from=${uuid}`;
+    // const shareUrl = `https://whoinside.vercel.app/?from=${uuid}&type=${
+    //   result?.type
+    // }&nickname=${encodeURIComponent(nickname)}`;
+    const shareUrl = `http://localhost:3000/?from=${uuid}&type=${
+      result?.type
+    }&nickname=${encodeURIComponent(nickname)}`;
 
     if (window.Kakao) {
       window.Kakao.Share.sendDefault({
@@ -86,9 +100,7 @@ export default function ResultPage() {
   };
 
   React.useEffect(() => {
-    const uuid = localStorage.getItem("uuid") || crypto.randomUUID();
-    localStorage.setItem("uuid", uuid);
-
+    // 2. 카카오 SDK 초기화
     if (
       typeof window !== "undefined" &&
       window.Kakao &&
@@ -96,7 +108,14 @@ export default function ResultPage() {
     ) {
       window.Kakao.init("47e9e842805216474700f75e72891072"); // ✅ 발급받은 키로 교체
     }
+    // 1. uuid 준비
+    let uuid = localStorage.getItem("uuid");
+    if (!uuid) {
+      uuid = crypto.randomUUID();
+      localStorage.setItem("uuid", uuid);
+    }
 
+    // 3. 나의 결과 계산
     const answers: string[] = [];
     for (let i = 1; i <= 10; i++) {
       const value = localStorage.getItem(`Q${i}`);
@@ -114,15 +133,39 @@ export default function ResultPage() {
         nickname,
       });
     }
-
-    if (
-      typeof window !== "undefined" &&
-      window.Kakao &&
-      !window.Kakao.isInitialized()
-    ) {
-      window.Kakao.init("47e9e842805216474700f75e72891072"); // 👉 발급받은 JS 키로 교체
-    }
   }, []);
+
+  React.useEffect(() => {
+    // 공유자 정보 가져오기
+    const fromUuid = localStorage.getItem("fromUuid");
+    const fromType = localStorage.getItem("fromType");
+    const fromNickname = localStorage.getItem("fromNickname");
+
+    if (fromUuid && fromType && fromNickname) {
+      setFromInfo({
+        fromUuid: fromUuid,
+        fromType,
+        fromNickname: decodeURIComponent(fromNickname),
+      });
+
+      // 궁합 찾기
+      if (result) {
+        const myType = result.type;
+        const matchKey = `${fromType}_${myType}`;
+        const reverseMatchKey = `${myType}_${fromType}`;
+        const comp =
+          compatibilityDescriptions[
+            matchKey as keyof typeof compatibilityDescriptions
+          ] ||
+          compatibilityDescriptions[
+            reverseMatchKey as keyof typeof compatibilityDescriptions
+          ];
+        if (comp) {
+          setCompatibility(comp);
+        }
+      }
+    }
+  }, [result]);
 
   if (!result)
     return <div className="text-center py-20">결과를 불러오는 중...1</div>;
@@ -130,10 +173,10 @@ export default function ResultPage() {
   const reaction = reactionGifs[result.type];
 
   const confirmNicknameAndShare = (nicknameInput: string) => {
-    setNickname(nicknameInput);
-    localStorage.setItem("nickname", nicknameInput);
     closeModal();
     setTimeout(() => {
+      setNickname(nicknameInput);
+      // localStorage.setItem("nickname", nicknameInput);
       handleKakaoShare();
     }, 200); // 살짝 딜레이 줘서 자연스럽게
   };
@@ -170,6 +213,41 @@ export default function ResultPage() {
           <p className="text-gray-700 text-lg text-center">
             {result.description}
           </p>
+
+          {/* 공유자가 있다면 */}
+          {fromInfo && (
+            <div className="mt-10 p-6 rounded-xl border bg-gray-50 space-y-4">
+              <h2 className="text-xl text-center font-bold text-purple-700">
+                {fromInfo.fromNickname}
+                <span className="text-gray-500 font-normal text-lg">
+                  님과의 궁합
+                </span>
+                <div>"{compatibility?.title}"</div>
+              </h2>
+              {compatibility ? (
+                <>
+                  <p className="text-center text-gray-800">
+                    {compatibility.summary}
+                  </p>
+                  <div className="text-left mt-4 space-y-2 text-gray-700">
+                    <div>
+                      <strong>잘 맞는 부분:</strong> {compatibility.good}
+                    </div>
+                    <div>
+                      <strong>주의할 점:</strong> {compatibility.caution}
+                    </div>
+                    <div>
+                      <strong>조언:</strong> {compatibility.advice}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <p className="text-center text-gray-500">
+                  궁합 정보를 찾을 수 없습니다.
+                </p>
+              )}
+            </div>
+          )}
 
           <p className="text-center flex justify-center">
             <KakaoShareButton onClick={openModal} />
