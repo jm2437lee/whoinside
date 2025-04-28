@@ -13,5 +13,10 @@ const pool = createPool({
   database: process.env.DB_DATABASE,
 });
 
+console.log("~~~~~process.env.DB_HOST", process.env.DB_HOST);
+console.log("~~~~~process.env.DB_PORT", process.env.DB_PORT);
+console.log("~~~~~process.env.DB_USER", process.env.DB_USER);
+console.log("~~~~~process.env.DB_DATABASE", process.env.DB_DATABASE);
+
 // drizzle ORM 인스턴스 생성
 export const db = drizzle(pool, { schema, mode: "default" });
