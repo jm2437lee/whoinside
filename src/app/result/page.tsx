@@ -64,7 +64,7 @@ export default function ResultPage() {
     typeof window !== "undefined" ? localStorage.getItem("uuid") : null;
 
   const handleKakaoShare = (nickname: string) => {
-    const uuid = localStorage.getItem("uuid");
+    const uuid = localStorage.getItem("uuid") || "anonymous";
     const shareUrl = `https://whoinside.vercel.app/?from=${uuid}&type=${
       result?.type
     }&nickname=${encodeURIComponent(nickname)}`;
@@ -189,6 +189,7 @@ export default function ResultPage() {
 
   const confirmNicknameAndShare = async (nicknameInput: string) => {
     closeModal();
+
     setTimeout(() => {
       // localStorage.setItem("nickname", nicknameInput);
       handleKakaoShare(nicknameInput);
