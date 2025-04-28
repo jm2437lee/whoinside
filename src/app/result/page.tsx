@@ -17,6 +17,7 @@ import compatibilityDescriptions from "@/data/compatibilityDescriptions.json";
 import Image from "next/image";
 import { Suspense } from "react";
 import { SearchParamsHandler } from "@/components/SearchParamsHandler";
+import { Users } from "lucide-react"; // 아이콘 라이브러리 사용
 
 const reactionGifs: Record<string, { img: string }> = {
   A1: {
@@ -59,8 +60,11 @@ export default function ResultPage() {
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
 
+  const uuid =
+    typeof window !== "undefined" ? localStorage.getItem("uuid") : null;
+
   const handleKakaoShare = (nickname: string) => {
-    const uuid = localStorage.getItem("uuid") || "anonymous";
+    const uuid = localStorage.getItem("uuid");
     const shareUrl = `https://whoinside.vercel.app/?from=${uuid}&type=${
       result?.type
     }&nickname=${encodeURIComponent(nickname)}`;
@@ -113,7 +117,7 @@ export default function ResultPage() {
       if (value) answers.push(value);
     }
     if (answers.length === 10) {
-      const { type, title, description, tmi, nickname } =
+      const { type, title, description, tmi, nickname, advice } =
         calculateResult(answers);
 
       setResult({
@@ -122,6 +126,7 @@ export default function ResultPage() {
         description,
         tmi,
         nickname,
+        advice,
       });
     }
   }, []);
@@ -154,6 +159,25 @@ export default function ResultPage() {
         if (comp) {
           setCompatibility(comp);
         }
+
+        // ✅ save-relation API 호출 추가
+        const myUuid = localStorage.getItem("uuid");
+
+        if (from && myUuid) {
+          const relationSaved = localStorage.getItem("relationSaved");
+
+          // ✅ relation 저장 안했을 때만 호출
+          if (from && myUuid && !relationSaved) {
+            fetch("/api/relation", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ fromUuid: from, toUuid: myUuid }),
+            }).then(() => {
+              // 저장 완료 후 relationSaved 플래그 남기기
+              localStorage.setItem("relationSaved", "true");
+            });
+          }
+        }
       }
     }
   }, [result]);
@@ -163,12 +187,21 @@ export default function ResultPage() {
 
   const reaction = reactionGifs[result.type];
 
-  const confirmNicknameAndShare = (nicknameInput: string) => {
+  const confirmNicknameAndShare = async (nicknameInput: string) => {
     closeModal();
     setTimeout(() => {
       // localStorage.setItem("nickname", nicknameInput);
       handleKakaoShare(nicknameInput);
     }, 200); // 살짝 딜레이 줘서 자연스럽게
+
+    const uuid = localStorage.getItem("uuid");
+    const type = result?.type;
+
+    await fetch("/api/user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uuid, nickname: nicknameInput, type }),
+    });
   };
 
   return (
@@ -184,6 +217,7 @@ export default function ResultPage() {
         <div className="max-w-xl w-full space-y-6">
           <h1 className="text-[20px] font-bold text-center text-gray-700 font-normal ">
             <span className="align-middle">당신의 감정 성향은: </span>
+            <br />
             <strong className="text-purple-600 text-4xl align-middle">
               {result.nickname}
             </strong>
@@ -207,6 +241,21 @@ export default function ResultPage() {
           <p className="text-gray-700 text-lg text-center">
             {result.description}
           </p>
+          <div className="text-left mt-4 space-y-2 text-gray-700">
+            {/* ✨ 조언 카드 (배열형) */}
+            {Array.isArray(result.advice) && (
+              <div className="mt-8 p-6 rounded-xl bg-purple-50 shadow-inner space-y-4">
+                <h3 className="text-2xl font-bold text-purple-700 text-center">
+                  ✨ 현실 조언 카드
+                </h3>
+                <ul className="list-disc list-inside space-y-2 text-gray-800 text-base leading-relaxed">
+                  {result.advice.map((item: string, index: number) => (
+                    <li key={index}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
 
           {/* 공유자가 있다면 */}
           {fromInfo && (
@@ -243,8 +292,19 @@ export default function ResultPage() {
             </div>
           )}
 
-          <p className="text-center flex justify-center">
+          <p className="text-center flex justify-center m-0">
             <KakaoShareButton onClick={openModal} />
+          </p>
+          <p className="text-center flex justify-center m-0">
+            {uuid && (
+              <a
+                href={`/me/${uuid}`}
+                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-purple-600 px-6 py-3 text-white font-semibold hover:bg-purple-700 transition"
+              >
+                <Users className="w-5 h-5" />
+                마이페이지로 가기
+              </a>
+            )}
           </p>
 
           <ResultActions />

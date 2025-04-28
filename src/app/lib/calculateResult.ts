@@ -7,6 +7,7 @@ export function calculateResult(answers: string[]): {
   nickname: string;
   description: string;
   tmi: string;
+  advice: string[];
 } {
   const countMap: Record<string, number> = {};
 
@@ -18,7 +19,7 @@ export function calculateResult(answers: string[]): {
     countMap[a] > countMap[b] ? a : b
   );
 
-  const { title, nickname, description, tmi } =
+  const { title, nickname, description, tmi, advice } =
     typeDescriptions[finalType as keyof typeof typeDescriptions];
 
   return {
@@ -27,5 +28,6 @@ export function calculateResult(answers: string[]): {
     nickname,
     description,
     tmi,
+    advice,
   };
 }
