@@ -56,6 +56,7 @@ export default function ResultPage() {
     fromNickname: string;
   } | null>(null);
   const [compatibility, setCompatibility] = React.useState<any>(null);
+  const [nickname, setNickname] = React.useState("");
 
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
@@ -129,6 +130,9 @@ export default function ResultPage() {
         advice,
       });
     }
+    if (fromInfo) {
+      setShowModal(true);
+    }
   }, []);
 
   React.useEffect(() => {
@@ -167,7 +171,7 @@ export default function ResultPage() {
           const relationSaved = localStorage.getItem("relationSaved");
 
           // ✅ relation 저장 안했을 때만 호출
-          if (from && myUuid && !relationSaved) {
+          if (!relationSaved) {
             fetch("/api/relation", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -191,7 +195,6 @@ export default function ResultPage() {
     closeModal();
 
     setTimeout(() => {
-      // localStorage.setItem("nickname", nicknameInput);
       handleKakaoShare(nicknameInput);
     }, 200); // 살짝 딜레이 줘서 자연스럽게
 
@@ -203,6 +206,24 @@ export default function ResultPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ uuid, nickname: nicknameInput, type }),
     });
+  };
+
+  const confirmNickname = async (nicknameInput: string) => {
+    closeModal();
+    const type = result?.type;
+
+    await fetch("/api/user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uuid, nickname: nicknameInput, type }),
+    });
+    setNickname(nicknameInput);
+  };
+
+  const confirmOnlyShare = () => {
+    setTimeout(() => {
+      handleKakaoShare(nickname);
+    }, 200); //
   };
 
   return (
@@ -316,7 +337,13 @@ export default function ResultPage() {
       <NicknameModal
         isOpen={showModal}
         onClose={closeModal}
-        onConfirm={confirmNicknameAndShare}
+        onConfirm={
+          !fromInfo
+            ? confirmNicknameAndShare
+            : nickname
+            ? confirmOnlyShare
+            : confirmNickname
+        }
       />
     </>
   );

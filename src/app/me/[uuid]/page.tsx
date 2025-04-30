@@ -34,7 +34,10 @@ export default async function MyPage({ params }: MyPageProps) {
     where: eq(relations.fromUuid, uuid),
   });
 
+  console.log("~~~~~sharedUsers", sharedUsers);
+
   const toUuids = sharedUsers.map((relation) => relation.toUuid);
+  console.log("~~~~~toUuids", toUuids);
 
   if (toUuids.length === 0) {
     return <MyPageContent nickname={myUser.nickname} connections={[]} />;
