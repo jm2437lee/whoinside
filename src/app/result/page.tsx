@@ -130,9 +130,6 @@ export default function ResultPage() {
         advice,
       });
     }
-    if (fromInfo) {
-      setShowModal(true);
-    }
   }, []);
 
   React.useEffect(() => {
@@ -142,6 +139,7 @@ export default function ResultPage() {
     const fromNickname = localStorage.getItem("fromNickname");
 
     if (from && fromType && fromNickname) {
+      setShowModal(true);
       setFromInfo({
         from: from,
         fromType,
