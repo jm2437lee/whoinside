@@ -126,15 +126,15 @@ export default function ResultPage() {
 
         if (!nickname) {
           setShowModal(true);
-          return;
         }
-        saveRelation();
       }
     }
   }, [result]);
 
   React.useEffect(() => {
-    if (nickname && fromInfo && !relationSaved) {
+    const relationSavedLS = localStorage.getItem("relationSaved");
+    if (nickname && fromInfo && !relationSaved && !relationSavedLS) {
+      console.log("Backup: Attempting to save relation from useEffect");
       saveRelation();
     }
   }, [nickname, fromInfo, relationSaved]);
@@ -162,13 +162,39 @@ export default function ResultPage() {
   const confirmNickname = async (nicknameInput: string) => {
     closeModal();
     const type = result?.type;
+    const from = localStorage.getItem("from");
+    const myUuid = localStorage.getItem("uuid");
+    const relationSavedLS = localStorage.getItem("relationSaved");
 
-    await fetch("/api/user", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ uuid, nickname: nicknameInput, type }),
-    });
-    setNickname(nicknameInput);
+    try {
+      // 1. 먼저 유저 정보 저장
+      await fetch("/api/user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uuid, nickname: nicknameInput, type }),
+      });
+
+      // 2. 관계 정보 저장 (fromInfo가 있을 때만)
+      if (from && myUuid && !relationSavedLS) {
+        console.log("Saving relation in confirmNickname...");
+        const response = await fetch("/api/relation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fromUuid: from, toUuid: myUuid }),
+        });
+        console.log("Relation save response:", response);
+
+        if (response.ok) {
+          localStorage.setItem("relationSaved", "true");
+          setRelationSaved(true);
+        }
+      }
+
+      // 3. 마지막으로 닉네임 상태 업데이트
+      setNickname(nicknameInput);
+    } catch (error) {
+      console.error("Error in confirmNickname:", error);
+    }
   };
 
   const confirmOnlyShare = async () => {
@@ -183,29 +209,25 @@ export default function ResultPage() {
   };
 
   const saveRelation = async () => {
-    console.log("Attempting to save relation...");
-    console.log("from:", localStorage.getItem("from"));
-    console.log("myUuid:", localStorage.getItem("uuid"));
-    console.log("relationSavedLS:", localStorage.getItem("relationSaved"));
-
     const from = localStorage.getItem("from");
     const myUuid = localStorage.getItem("uuid");
     const relationSavedLS = localStorage.getItem("relationSaved");
 
     if (from && myUuid && !relationSavedLS) {
-      console.log("Saving relation...");
+      console.log("Executing saveRelation...");
       try {
         const response = await fetch("/api/relation", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ fromUuid: from, toUuid: myUuid }),
         });
-        console.log("Relation save response:", response);
 
-        localStorage.setItem("relationSaved", "true");
-        setRelationSaved(true);
+        if (response.ok) {
+          localStorage.setItem("relationSaved", "true");
+          setRelationSaved(true);
+        }
       } catch (error) {
-        console.error("Error saving relation:", error);
+        console.error("Error in saveRelation:", error);
       }
     }
   };
