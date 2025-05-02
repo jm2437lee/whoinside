@@ -310,9 +310,67 @@ export default function ResultPage() {
           )}
 
           {/* 공유 버튼 */}
-          <p className="text-center flex justify-center m-0">
-            <KakaoShareButton onClick={handleShare} />
-          </p>
+          <div className="mt-8 mb-4 text-center space-y-3">
+            <h3 className="text-xl font-bold text-purple-700">
+              친구들과 공유하기
+            </h3>
+            <p className="text-gray-600">
+              나와 친구들의 감정 성향 궁합을 확인해보세요!
+            </p>
+            <p className="text-sm text-gray-500">
+              카카오톡으로 공유하거나 링크를 복사해서 전달해보세요 ✨
+            </p>
+          </div>
+          <div className="text-center flex justify-center gap-2 m-0 mb-4">
+            {/* <KakaoShareButton onClick={handleShare} /> */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => {
+                if (!nickname) {
+                  openModal();
+                  return;
+                }
+                handleKakaoShare(nickname);
+              }}
+              className="rounded-full"
+            >
+              <Image
+                src="/icon_kakao.png"
+                alt="카카오톡 공유"
+                width={36}
+                height={36}
+                priority
+              />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => {
+                const uuid = localStorage.getItem("uuid") || "anonymous";
+                const shareUrl = `https://whoinside.vercel.app/?from=${uuid}&type=${
+                  result?.type
+                }&nickname=${encodeURIComponent(nickname)}`;
+                navigator.clipboard.writeText(shareUrl);
+              }}
+              className="rounded-full"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </Button>
+          </div>
           <p className="text-center flex justify-center m-0">
             {uuid && (
               <a
@@ -320,7 +378,7 @@ export default function ResultPage() {
                 className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700"
               >
                 <Users size={20} />
-                공유한 친구와 궁합 보기
+                공유한 친구와 궁합 보기(링크 복사해두세요)
               </a>
             )}
           </p>

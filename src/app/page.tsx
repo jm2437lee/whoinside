@@ -26,7 +26,7 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <>
+    <div className="relative min-h-screen">
       <Suspense>
         <SearchParamsHandler />
         <ShareToolTip />
@@ -71,6 +71,6 @@ export default function LandingPage() {
           </div>
         </main>
       </div>
-    </>
+    </div>
   );
 }
