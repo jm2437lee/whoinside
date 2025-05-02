@@ -184,7 +184,7 @@ export default function ResultPage() {
         setCompatibility(comp);
       }
 
-      // 공유받은 경우 바로 닉네임 모달 표시
+      // 공유받은 경우에만 바로 닉네임 모달 표시
       setShowModal(true);
     }
   }, [result]);
@@ -199,14 +199,14 @@ export default function ResultPage() {
     const from = localStorage.getItem("from");
 
     if (from) {
-      // 공유받은 경우
+      // 공유받은 경우: 닉네임이 있으면 바로 공유, 없으면 모달
       return (
         <KakaoShareButton
           onClick={nickname ? confirmOnlyShare : () => setShowModal(true)}
         />
       );
     } else {
-      // 공유받지 않은 경우
+      // 공유받지 않은 경우: 클릭하면 무조건 닉네임 모달
       return <KakaoShareButton onClick={() => setShowModal(true)} />;
     }
   };
