@@ -39,6 +39,7 @@ export default function ResultPage() {
   } | null>(null);
   const [compatibility, setCompatibility] = React.useState<any>(null);
   const [nickname, setNickname] = React.useState("");
+  const [relationSaved, setRelationSaved] = React.useState(false);
 
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
@@ -133,10 +134,10 @@ export default function ResultPage() {
   }, [result]);
 
   React.useEffect(() => {
-    if (nickname && fromInfo) {
+    if (nickname && fromInfo && !relationSaved) {
       saveRelation();
     }
-  }, [nickname, fromInfo]);
+  }, [nickname, fromInfo, relationSaved]);
 
   if (!result)
     return <div className="text-center py-20">결과를 불러오는 중...</div>;
@@ -184,19 +185,16 @@ export default function ResultPage() {
   const saveRelation = async () => {
     const from = localStorage.getItem("from");
     const myUuid = localStorage.getItem("uuid");
+    const relationSavedLS = localStorage.getItem("relationSaved");
 
-    if (from && myUuid) {
-      const relationSaved = localStorage.getItem("relationSaved");
-
-      if (!relationSaved) {
-        fetch("/api/relation", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ fromUuid: from, toUuid: myUuid }),
-        }).then(() => {
-          localStorage.setItem("relationSaved", "true");
-        });
-      }
+    if (from && myUuid && !relationSavedLS) {
+      await fetch("/api/relation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fromUuid: from, toUuid: myUuid }),
+      });
+      localStorage.setItem("relationSaved", "true");
+      setRelationSaved(true);
     }
   };
 
