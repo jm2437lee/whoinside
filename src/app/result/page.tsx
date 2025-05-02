@@ -72,158 +72,143 @@ export default function ResultPage() {
     }
   };
 
-  React.useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      window.Kakao &&
-      !window.Kakao.isInitialized()
-    ) {
-      window.Kakao.init("47e9e842805216474700f75e72891072"); // 발급받은 키로 교체
-    }
-
-    const uuid = crypto.randomUUID();
-    localStorage.setItem("uuid", uuid);
-
-    const answers: string[] = [];
-    for (let i = 1; i <= 10; i++) {
-      const value = localStorage.getItem(`Q${i}`);
-      if (value) answers.push(value);
-    }
-    if (answers.length === 10) {
-      const { type, title, description, tmi, nickname, advice } =
-        calculateResult(answers);
-      setResult({ type, title, description, tmi, nickname, advice });
-    }
-  }, []);
-
-  React.useEffect(() => {
-    const from = localStorage.getItem("from");
-    const fromType = localStorage.getItem("fromType");
-    const fromNickname = localStorage.getItem("fromNickname");
-
-    if (from && fromType && fromNickname) {
-      setFromInfo({
-        from,
-        fromType,
-        fromNickname: decodeURIComponent(fromNickname),
-      });
-
-      if (result) {
-        const myType = result.type;
-        const matchKey = `${fromType}_${myType}`;
-        const reverseMatchKey = `${myType}_${fromType}`;
-        const comp =
-          compatibilityDescriptions[
-            matchKey as keyof typeof compatibilityDescriptions
-          ] ||
-          compatibilityDescriptions[
-            reverseMatchKey as keyof typeof compatibilityDescriptions
-          ];
-
-        if (comp) {
-          setCompatibility(comp);
-        }
-
-        if (!nickname) {
-          setShowModal(true);
-        }
-      }
-    }
-  }, [result]);
-
-  const saveRelation = React.useCallback(async () => {
-    const from = localStorage.getItem("from");
-    const myUuid = localStorage.getItem("uuid");
-    const relationSavedLS = localStorage.getItem("relationSaved");
-
-    if (from && myUuid && !relationSavedLS) {
-      console.log("Executing saveRelation...");
-      try {
-        const response = await fetch("/api/relation", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ fromUuid: from, toUuid: myUuid }),
-        });
-
-        if (response.ok) {
-          localStorage.setItem("relationSaved", "true");
-          setRelationSaved(true);
-        }
-      } catch (error) {
-        console.error("Error in saveRelation:", error);
-      }
-    }
-  }, []);
-
-  React.useEffect(() => {
-    if (nickname && fromInfo && !relationSaved) {
-      console.log("Attempting to save relation from useEffect", {
-        nickname,
-        fromInfo,
-      });
-      saveRelation();
-    }
-  }, [nickname, fromInfo, relationSaved, saveRelation]);
-
-  if (!result)
-    return <div className="text-center py-20">결과를 불러오는 중...</div>;
-
-  const reaction = reactionGifs[result.type];
-
+  // 1. 공유받지 않은 경우의 공유버튼 클릭 -> 닉네임 입력 -> 유저정보 저장
   const confirmNicknameAndShare = async (nicknameInput: string) => {
-    handleKakaoShare(nicknameInput);
-
-    const uuid = localStorage.getItem("uuid");
     const type = result?.type;
-
-    await fetch("/api/user", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ uuid, nickname: nicknameInput, type }),
-    });
-    setNickname(nicknameInput);
-    closeModal();
-  };
-
-  const confirmNickname = async (nicknameInput: string) => {
-    closeModal();
-    const type = result?.type;
-    const from = localStorage.getItem("from");
-    const myUuid = localStorage.getItem("uuid");
-
     try {
-      // 1. 유저 정보 저장
+      // 유저정보만 저장
       await fetch("/api/user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ uuid, nickname: nicknameInput, type }),
       });
 
-      // 2. 관계 정보 저장
-      await fetch("/api/relation", {
+      setNickname(nicknameInput);
+      closeModal();
+      // 카카오 공유
+      handleKakaoShare(nicknameInput);
+    } catch (error) {
+      console.error("Error saving user:", error);
+    }
+  };
+
+  // 2. 공유받은 경우의 닉네임 입력 -> 유저정보 저장 + 관계정보 저장
+  const confirmNickname = async (nicknameInput: string) => {
+    const type = result?.type;
+    const from = localStorage.getItem("from");
+    const myUuid = localStorage.getItem("uuid");
+
+    try {
+      // 유저정보 저장
+      await fetch("/api/user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fromUuid: from, toUuid: myUuid }),
+        body: JSON.stringify({ uuid, nickname: nicknameInput, type }),
       });
 
-      // 3. 저장 완료 후 상태 업데이트
-      localStorage.setItem("relationSaved", "true");
-      setRelationSaved(true);
+      // 관계정보 저장
+      if (from && myUuid) {
+        await fetch("/api/relation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fromUuid: from, toUuid: myUuid }),
+        });
+        localStorage.setItem("relationSaved", "true");
+        setRelationSaved(true);
+      }
+
       setNickname(nicknameInput);
+      closeModal();
     } catch (error) {
       console.error("Error:", error);
     }
   };
 
-  const confirmOnlyShare = async () => {
+  // 2-3. 공유받은 경우의 공유버튼 클릭 -> 카카오 공유만 실행
+  const confirmOnlyShare = () => {
     handleKakaoShare(nickname);
-    const type = result?.type;
+  };
 
-    await fetch("/api/user", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ uuid, nickname, type }),
-    });
+  // 컴포넌트 마운트 시 공유 여부 체크 및 초기 설정
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      // 카카오 초기화
+      if (window.Kakao && !window.Kakao.isInitialized()) {
+        window.Kakao.init("47e9e842805216474700f75e72891072");
+      }
+
+      // UUID 생성
+      const uuid = crypto.randomUUID();
+      localStorage.setItem("uuid", uuid);
+
+      // 결과 계산 및 설정
+      const answers: string[] = [];
+      for (let i = 1; i <= 10; i++) {
+        const value = localStorage.getItem(`Q${i}`);
+        if (value) answers.push(value);
+      }
+      if (answers.length === 10) {
+        const { type, title, description, tmi, nickname, advice } =
+          calculateResult(answers);
+        setResult({ type, title, description, tmi, nickname, advice });
+      }
+    }
+  }, []);
+
+  // 공유받은 경우 fromInfo 설정
+  React.useEffect(() => {
+    const from = localStorage.getItem("from");
+    const fromType = localStorage.getItem("fromType");
+    const fromNickname = localStorage.getItem("fromNickname");
+
+    if (from && fromType && fromNickname && result) {
+      setFromInfo({
+        from,
+        fromType,
+        fromNickname: decodeURIComponent(fromNickname),
+      });
+
+      // 궁합 정보 설정
+      const myType = result.type;
+      const matchKey = `${fromType}_${myType}`;
+      const reverseMatchKey = `${myType}_${fromType}`;
+      const comp =
+        compatibilityDescriptions[
+          matchKey as keyof typeof compatibilityDescriptions
+        ] ||
+        compatibilityDescriptions[
+          reverseMatchKey as keyof typeof compatibilityDescriptions
+        ];
+
+      if (comp) {
+        setCompatibility(comp);
+      }
+
+      // 공유받은 경우 바로 닉네임 모달 표시
+      setShowModal(true);
+    }
+  }, [result]);
+
+  if (!result)
+    return <div className="text-center py-20">결과를 불러오는 중...</div>;
+
+  const reaction = reactionGifs[result.type];
+
+  // 공유 버튼 렌더링
+  const renderShareButton = () => {
+    const from = localStorage.getItem("from");
+
+    if (from) {
+      // 공유받은 경우
+      return (
+        <KakaoShareButton
+          onClick={nickname ? confirmOnlyShare : () => setShowModal(true)}
+        />
+      );
+    } else {
+      // 공유받지 않은 경우
+      return <KakaoShareButton onClick={() => setShowModal(true)} />;
+    }
   };
 
   return (
@@ -315,9 +300,7 @@ export default function ResultPage() {
           )}
 
           <p className="text-center flex justify-center m-0">
-            <KakaoShareButton
-              onClick={fromInfo && nickname ? confirmOnlyShare : openModal}
-            />
+            {renderShareButton()}
           </p>
           <p className="text-center flex justify-center m-0">
             {uuid && (
@@ -340,11 +323,9 @@ export default function ResultPage() {
         isOpen={showModal}
         onClose={closeModal}
         onConfirm={
-          !fromInfo
-            ? confirmNicknameAndShare
-            : !nickname
+          localStorage.getItem("from")
             ? confirmNickname
-            : () => {}
+            : confirmNicknameAndShare
         }
       />
     </>
