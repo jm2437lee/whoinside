@@ -133,10 +133,10 @@ export default function ResultPage() {
   }, [result]);
 
   React.useEffect(() => {
-    if (nickname) {
+    if (nickname && fromInfo) {
       saveRelation();
     }
-  }, [nickname]);
+  }, [nickname, fromInfo]);
 
   if (!result)
     return <div className="text-center py-20">결과를 불러오는 중...</div>;
@@ -154,6 +154,7 @@ export default function ResultPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ uuid, nickname: nicknameInput, type }),
     });
+    setNickname(nicknameInput);
     closeModal();
   };
 
@@ -167,7 +168,6 @@ export default function ResultPage() {
       body: JSON.stringify({ uuid, nickname: nicknameInput, type }),
     });
     setNickname(nicknameInput);
-    saveRelation();
   };
 
   const confirmOnlyShare = async () => {
