@@ -201,6 +201,9 @@ export default function ResultPage() {
     closeModal();
     const type = result?.type;
 
+    alert("uuid :" + uuid);
+    alert("nicknameInput :" + nicknameInput);
+    alert("type :" + type);
     await fetch("/api/user", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -226,11 +229,16 @@ export default function ResultPage() {
     // ✅ save-relation API 호출 추가
     const myUuid = localStorage.getItem("uuid");
 
+    alert("from :" + from);
+    alert("myUuid :" + myUuid);
     if (from && myUuid) {
       const relationSaved = localStorage.getItem("relationSaved");
 
+      alert(1);
       // ✅ relation 저장 안했을 때만 호출
       if (!relationSaved) {
+        alert("fromUuid: " + from);
+        alert("toUuid: " + myUuid);
         fetch("/api/relation", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
