@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { Suspense } from "react";
 import { SearchParamsHandler } from "@/components/SearchParamsHandler";
 import React from "react";
+import { ShareToolTip } from "@/components/ShareToolTip";
 
 export default function LandingPage() {
   // 카카오 SDK 초기화를 위한 useEffect 추가
@@ -29,6 +30,7 @@ export default function LandingPage() {
       <Suspense>
         <SearchParamsHandler />
       </Suspense>
+      <ShareToolTip />
       <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
         <main className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen text-center">
           <div className="max-w-3xl mx-auto space-y-8">
