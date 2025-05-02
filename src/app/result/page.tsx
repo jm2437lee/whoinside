@@ -66,7 +66,7 @@ export default function ResultPage() {
         content: {
           title: `나의 감정 성향, 궁금하지 않아? ${nickname}과의 궁합도 확인해봐`,
           description: "나와 너의 감정 성향 우리 궁합은 얼마나 잘 맞을까? 👀",
-          imageUrl: "/whoinside.png",
+          imageUrl: "https://whoinside.vercel.app/icon.png",
           link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
         },
         buttons: [
