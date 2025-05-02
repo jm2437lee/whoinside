@@ -188,21 +188,30 @@ export default function ResultPage() {
   const confirmNickname = async (nicknameInput: string) => {
     closeModal();
     const type = result?.type;
+    const from = localStorage.getItem("from");
+    const myUuid = localStorage.getItem("uuid");
 
     try {
-      // 1. 먼저 유저 정보 저장
+      // 1. 유저 정보 저장
       await fetch("/api/user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ uuid, nickname: nicknameInput, type }),
       });
 
-      // 2. 닉네임 상태 업데이트
-      setNickname(nicknameInput);
+      // 2. 관계 정보 저장
+      await fetch("/api/relation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fromUuid: from, toUuid: myUuid }),
+      });
 
-      // 3. 관계 정보 저장은 useEffect에서 처리되도록 함
+      // 3. 저장 완료 후 상태 업데이트
+      localStorage.setItem("relationSaved", "true");
+      setRelationSaved(true);
+      setNickname(nicknameInput);
     } catch (error) {
-      console.error("Error in confirmNickname:", error);
+      console.error("Error:", error);
     }
   };
 
