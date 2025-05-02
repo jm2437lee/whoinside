@@ -17,6 +17,7 @@ import compatibilityDescriptions from "@/data/compatibilityDescriptions.json";
 import Image from "next/image";
 import { Suspense } from "react";
 import { SearchParamsHandler } from "@/components/SearchParamsHandler";
+import Head from "next/head";
 
 const reactionGifs: Record<string, { img: string }> = {
   A1: { img: "/gifs/a1.png" },
@@ -40,6 +41,7 @@ export default function ResultPage() {
   const [compatibility, setCompatibility] = React.useState<any>(null);
   const [nickname, setNickname] = React.useState("");
   const [relationSaved, setRelationSaved] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
@@ -48,18 +50,23 @@ export default function ResultPage() {
     typeof window !== "undefined" ? localStorage.getItem("uuid") : null;
 
   const handleKakaoShare = (nickname: string) => {
+    if (typeof window === "undefined" || !window.Kakao) {
+      console.error("Kakao SDK not loaded");
+      return;
+    }
+
     const uuid = localStorage.getItem("uuid") || "anonymous";
     const shareUrl = `https://whoinside.vercel.app/?from=${uuid}&type=${
       result?.type
     }&nickname=${encodeURIComponent(nickname)}`;
 
-    if (window.Kakao) {
+    try {
       window.Kakao.Share.sendDefault({
         objectType: "feed",
         content: {
           title: `나의 감정 성향, 궁금하지 않아? ${nickname}과의 궁합도 확인해봐`,
           description: "나와 너의 감정 성향 우리 궁합은 얼마나 잘 맞을까? 👀",
-          imageUrl: "https://yourdomain.com/static/og-image.jpg", // 썸네일 이미지
+          imageUrl: "https://cdn-icons-png.flaticon.com/512/535/535239.png",
           link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
         },
         buttons: [
@@ -69,12 +76,15 @@ export default function ResultPage() {
           },
         ],
       });
+    } catch (error) {
+      console.error("Kakao share error:", error);
     }
   };
 
-  // 1. 공유받지 않은 경우의 공유버튼 클릭 -> 닉네임 입력 -> 유저정보 저장
+  // 1. 공유받지 않은 경우의 공유버튼 클릭 -> 닉네임 입력 -> 유저정보 저장 -> 카카오 공유
   const confirmNicknameAndShare = async (nicknameInput: string) => {
     const type = result?.type;
+    setIsLoading(true);
     try {
       // 유저정보만 저장
       await fetch("/api/user", {
@@ -85,10 +95,11 @@ export default function ResultPage() {
 
       setNickname(nicknameInput);
       closeModal();
-      // 카카오 공유
       handleKakaoShare(nicknameInput);
     } catch (error) {
       console.error("Error saving user:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -98,6 +109,7 @@ export default function ResultPage() {
     const from = localStorage.getItem("from");
     const myUuid = localStorage.getItem("uuid");
 
+    setIsLoading(true);
     try {
       // 유저정보 저장
       await fetch("/api/user", {
@@ -113,30 +125,33 @@ export default function ResultPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ fromUuid: from, toUuid: myUuid }),
         });
-        localStorage.setItem("relationSaved", "true");
-        setRelationSaved(true);
       }
 
       setNickname(nicknameInput);
       closeModal();
     } catch (error) {
       console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // 2-3. 공유받은 경우의 공유버튼 클릭 -> 카카오 공유만 실행
-  const confirmOnlyShare = () => {
-    handleKakaoShare(nickname);
+  // 공유받은 경우의 공유버튼 클릭 -> 카카오 공유만 실행
+  const handleShare = () => {
+    const from = localStorage.getItem("from");
+
+    if (from) {
+      // 공유받은 경우: 바로 카카오 공유
+      handleKakaoShare(nickname);
+    } else {
+      // 공유받지 않은 경우: 닉네임 모달 표시
+      setShowModal(true);
+    }
   };
 
   // 컴포넌트 마운트 시 공유 여부 체크 및 초기 설정
   React.useEffect(() => {
     if (typeof window !== "undefined") {
-      // 카카오 초기화
-      if (window.Kakao && !window.Kakao.isInitialized()) {
-        window.Kakao.init("47e9e842805216474700f75e72891072");
-      }
-
       // UUID 생성
       const uuid = crypto.randomUUID();
       localStorage.setItem("uuid", uuid);
@@ -189,37 +204,41 @@ export default function ResultPage() {
     }
   }, [result]);
 
+  // 카카오 SDK 초기화를 위한 useEffect 추가
+  React.useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://developers.kakao.com/sdk/js/kakao.js";
+    script.async = true;
+    script.onload = () => {
+      if (window.Kakao && !window.Kakao.isInitialized()) {
+        window.Kakao.init("47e9e842805216474700f75e72891072");
+      }
+    };
+    document.head.appendChild(script);
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
+
   if (!result)
     return <div className="text-center py-20">결과를 불러오는 중...</div>;
 
   const reaction = reactionGifs[result.type];
 
-  // 공유 버튼 렌더링
-  const renderShareButton = () => {
-    const from = localStorage.getItem("from");
-
-    if (from) {
-      // 공유받은 경우: 닉네임이 있으면 바로 공유, 없으면 모달
-      return (
-        <KakaoShareButton
-          onClick={nickname ? confirmOnlyShare : () => setShowModal(true)}
-        />
-      );
-    } else {
-      // 공유받지 않은 경우: 클릭하면 무조건 닉네임 모달
-      return <KakaoShareButton onClick={() => setShowModal(true)} />;
-    }
-  };
-
   return (
-    <>
-      <Suspense fallback={null}>
+    <main>
+      <Suspense>
         <SearchParamsHandler />
       </Suspense>
-      <Script
-        src="https://developers.kakao.com/sdk/js/kakao.js"
-        strategy="beforeInteractive"
-      />
+      {/* 로딩 오버레이 */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg shadow-lg flex items-center space-x-3">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
+            <p className="text-gray-700">처리중입니다...</p>
+          </div>
+        </div>
+      )}
       <div className="min-h-screen flex flex-col justify-center items-center px-6 py-10">
         <div className="max-w-xl w-full space-y-6">
           <h1 className="text-[20px] font-bold text-center text-gray-700 font-normal ">
@@ -299,35 +318,35 @@ export default function ResultPage() {
             </div>
           )}
 
+          {/* 공유 버튼 */}
           <p className="text-center flex justify-center m-0">
-            {renderShareButton()}
+            <KakaoShareButton onClick={handleShare} />
           </p>
           <p className="text-center flex justify-center m-0">
             {uuid && (
               <a
                 href={`/me/${uuid}`}
-                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-purple-600 px-6 py-3 text-white font-semibold hover:bg-purple-700 transition"
+                className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700"
               >
-                <Users className="w-5 h-5" />
-                마이페이지로 가기
+                <Users size={20} />
+                나의 관계 보기
               </a>
             )}
           </p>
 
-          <ResultActions />
+          {/* 다시 테스트하기와 이메일 입력 섹션 */}
+          <div className="mt-8 space-y-4">
+            <ResultActions />
+          </div>
         </div>
       </div>
-
-      {/* 모달 삽입 */}
-      <NicknameModal
-        isOpen={showModal}
-        onClose={closeModal}
-        onConfirm={
-          localStorage.getItem("from")
-            ? confirmNickname
-            : confirmNicknameAndShare
-        }
-      />
-    </>
+      {showModal && (
+        <NicknameModal
+          isOpen={showModal}
+          onClose={closeModal}
+          onConfirm={fromInfo ? confirmNickname : confirmNicknameAndShare}
+        />
+      )}
+    </main>
   );
 }
