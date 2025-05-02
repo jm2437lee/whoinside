@@ -139,7 +139,7 @@ export default function ResultPage() {
     const fromNickname = localStorage.getItem("fromNickname");
 
     if (from && fromType && fromNickname) {
-      setShowModal(true);
+      // setShowModal(true);
       setFromInfo({
         from: from,
         fromType,
@@ -162,10 +162,21 @@ export default function ResultPage() {
           setCompatibility(comp);
         }
 
+        if (!nickname) {
+          setShowModal(true);
+          return;
+        }
         saveRelation();
       }
     }
   }, [result]);
+
+  // nickname이 바뀌면 saveRelation 실행
+  React.useEffect(() => {
+    if (nickname) {
+      saveRelation();
+    }
+  }, [nickname]);
 
   if (!result)
     return <div className="text-center py-20">결과를 불러오는 중...</div>;
@@ -173,8 +184,6 @@ export default function ResultPage() {
   const reaction = reactionGifs[result.type];
 
   const confirmNicknameAndShare = async (nicknameInput: string) => {
-    closeModal();
-
     handleKakaoShare(nicknameInput);
 
     const uuid = localStorage.getItem("uuid");
@@ -185,6 +194,7 @@ export default function ResultPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ uuid, nickname: nicknameInput, type }),
     });
+    closeModal();
   };
 
   const confirmNickname = async (nicknameInput: string) => {
@@ -229,9 +239,6 @@ export default function ResultPage() {
           // 저장 완료 후 relationSaved 플래그 남기기
           localStorage.setItem("relationSaved", "true");
         });
-      }
-      if (!nickname) {
-        setShowModal(true);
       }
     }
   };
