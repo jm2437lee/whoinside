@@ -1,6 +1,7 @@
 import type React from "react";
 import "@/app/globals.css";
 import Script from "next/script"; // ✅ 이거 꼭 추가!
+import LocalStorageInitializer from "@/components/LocalStorageInitializer";
 
 export const metadata = {
   title: "감정 성향 테스트 | 당신의 감정 성향을 알아보세요",
@@ -22,7 +23,10 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <LocalStorageInitializer />
+        {children}
+      </body>
     </html>
   );
 }

@@ -5,12 +5,14 @@ interface NicknameModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (nickname: string) => void;
+  isShared?: boolean; // 공유 받은 상태인지 여부
 }
 
 export default function NicknameModal({
   isOpen,
   onClose,
   onConfirm,
+  isShared = false, // 기본값은 false (공유하기 전 상태)
 }: NicknameModalProps) {
   const [nickname, setNickname] = useState("");
 
@@ -46,7 +48,7 @@ export default function NicknameModal({
               }
             }}
           >
-            공유하기
+            {isShared ? "입력하기" : "공유하기"}
           </Button>
         </div>
       </div>

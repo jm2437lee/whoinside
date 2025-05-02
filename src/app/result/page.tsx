@@ -230,15 +230,6 @@ export default function ResultPage() {
       <Suspense>
         <SearchParamsHandler />
       </Suspense>
-      {/* 로딩 오버레이 */}
-      {isLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg shadow-lg flex items-center space-x-3">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
-            <p className="text-gray-700">처리중입니다...</p>
-          </div>
-        </div>
-      )}
       <div className="min-h-screen flex flex-col justify-center items-center px-6 py-10">
         <div className="max-w-xl w-full space-y-6">
           <h1 className="text-[20px] font-bold text-center text-gray-700 font-normal ">
@@ -345,7 +336,17 @@ export default function ResultPage() {
           isOpen={showModal}
           onClose={closeModal}
           onConfirm={fromInfo ? confirmNickname : confirmNicknameAndShare}
+          isShared={!!fromInfo}
         />
+      )}
+      {/* 로딩 오버레이 - z-index를 9999로 설정하여 최상단에 표시 */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
+          <div className="bg-white rounded-xl shadow-xl p-6 flex flex-col items-center gap-4 min-w-[200px]">
+            <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-gray-700 font-medium">처리중입니다...</p>
+          </div>
+        </div>
       )}
     </main>
   );

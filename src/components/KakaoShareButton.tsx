@@ -11,7 +11,7 @@ export default function KakaoShareButton({ onClick }: KakaoShareButtonProps) {
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 px-4 py-2 bg-black text-yellow-300 rounded-lg shadow hover:brightness-125 transition"
+      className="flex items-center gap-2 px-4 py-2 bg-black text-yellow-300 rounded-lg shadow hover:brightness-125 transition mb-4"
     >
       <Image
         src="/icon_kakao.png"
