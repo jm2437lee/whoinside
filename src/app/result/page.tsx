@@ -183,18 +183,30 @@ export default function ResultPage() {
   };
 
   const saveRelation = async () => {
+    console.log("Attempting to save relation...");
+    console.log("from:", localStorage.getItem("from"));
+    console.log("myUuid:", localStorage.getItem("uuid"));
+    console.log("relationSavedLS:", localStorage.getItem("relationSaved"));
+
     const from = localStorage.getItem("from");
     const myUuid = localStorage.getItem("uuid");
     const relationSavedLS = localStorage.getItem("relationSaved");
 
     if (from && myUuid && !relationSavedLS) {
-      await fetch("/api/relation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fromUuid: from, toUuid: myUuid }),
-      });
-      localStorage.setItem("relationSaved", "true");
-      setRelationSaved(true);
+      console.log("Saving relation...");
+      try {
+        const response = await fetch("/api/relation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fromUuid: from, toUuid: myUuid }),
+        });
+        console.log("Relation save response:", response);
+
+        localStorage.setItem("relationSaved", "true");
+        setRelationSaved(true);
+      } catch (error) {
+        console.error("Error saving relation:", error);
+      }
     }
   };
 
