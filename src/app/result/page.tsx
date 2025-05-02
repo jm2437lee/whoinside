@@ -179,6 +179,9 @@ export default function ResultPage() {
               localStorage.setItem("relationSaved", "true");
             });
           }
+          if (!nickname) {
+            setShowModal(true);
+          }
         }
       }
     }
@@ -313,7 +316,9 @@ export default function ResultPage() {
           )}
 
           <p className="text-center flex justify-center m-0">
-            <KakaoShareButton onClick={openModal} />
+            <KakaoShareButton
+              onClick={fromInfo && nickname ? confirmOnlyShare : openModal}
+            />
           </p>
           <p className="text-center flex justify-center m-0">
             {uuid && (
@@ -338,9 +343,9 @@ export default function ResultPage() {
         onConfirm={
           !fromInfo
             ? confirmNicknameAndShare
-            : nickname
-            ? confirmOnlyShare
-            : confirmNickname
+            : !nickname
+            ? confirmNickname
+            : () => {}
         }
       />
     </>
