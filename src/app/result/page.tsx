@@ -12,42 +12,24 @@ import { Button } from "@/components/ui/button";
 import Script from "next/script";
 import KakaoShareButton from "@/components/KakaoShareButton";
 import NicknameModal from "@/components/NicknameModal";
-// import { useSearchParams } from "next/navigation";
+import { Users } from "lucide-react"; // 아이콘 라이브러리 사용
 import compatibilityDescriptions from "@/data/compatibilityDescriptions.json";
 import Image from "next/image";
 import { Suspense } from "react";
 import { SearchParamsHandler } from "@/components/SearchParamsHandler";
-import { Users } from "lucide-react"; // 아이콘 라이브러리 사용
 
 const reactionGifs: Record<string, { img: string }> = {
-  A1: {
-    img: "/gifs/a1.png",
-  },
-  A2: {
-    img: "/gifs/a2.png",
-  },
-  B1: {
-    img: "/gifs/b1.png",
-  },
-  B2: {
-    img: "/gifs/b2.png",
-  },
-  C1: {
-    img: "/gifs/c1.png",
-  },
-  C2: {
-    img: "/gifs/c2.png",
-  },
-  D1: {
-    img: "/gifs/d1.png",
-  },
-  D2: {
-    img: "/gifs/d2.png",
-  },
+  A1: { img: "/gifs/a1.png" },
+  A2: { img: "/gifs/a2.png" },
+  B1: { img: "/gifs/b1.png" },
+  B2: { img: "/gifs/b2.png" },
+  C1: { img: "/gifs/c1.png" },
+  C2: { img: "/gifs/c2.png" },
+  D1: { img: "/gifs/d1.png" },
+  D2: { img: "/gifs/d2.png" },
 };
 
 export default function ResultPage() {
-  // const searchParams = useSearchParams();
   const [result, setResult] = React.useState<any>(null);
   const [showModal, setShowModal] = React.useState(false);
   const [fromInfo, setFromInfo] = React.useState<{
@@ -69,9 +51,6 @@ export default function ResultPage() {
     const shareUrl = `https://whoinside.vercel.app/?from=${uuid}&type=${
       result?.type
     }&nickname=${encodeURIComponent(nickname)}`;
-    // const shareUrl = `http://localhost:3000/?from=${uuid}&type=${
-    //   result?.type
-    // }&nickname=${encodeURIComponent(nickname)}`;
 
     if (window.Kakao) {
       window.Kakao.Share.sendDefault({
@@ -80,18 +59,12 @@ export default function ResultPage() {
           title: `나의 감정 성향, 궁금하지 않아? ${nickname}과의 궁합도 확인해봐`,
           description: "나와 너의 감정 성향 우리 궁합은 얼마나 잘 맞을까? 👀",
           imageUrl: "https://yourdomain.com/static/og-image.jpg", // 썸네일 이미지
-          link: {
-            mobileWebUrl: shareUrl,
-            webUrl: shareUrl,
-          },
+          link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
         },
         buttons: [
           {
             title: "나도 테스트하러 가기",
-            link: {
-              mobileWebUrl: shareUrl,
-              webUrl: shareUrl,
-            },
+            link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
           },
         ],
       });
@@ -99,19 +72,17 @@ export default function ResultPage() {
   };
 
   React.useEffect(() => {
-    // 2. 카카오 SDK 초기화
     if (
       typeof window !== "undefined" &&
       window.Kakao &&
       !window.Kakao.isInitialized()
     ) {
-      window.Kakao.init("47e9e842805216474700f75e72891072"); // ✅ 발급받은 키로 교체
+      window.Kakao.init("47e9e842805216474700f75e72891072"); // 발급받은 키로 교체
     }
-    // 1. uuid 준비
+
     const uuid = crypto.randomUUID();
     localStorage.setItem("uuid", uuid);
 
-    // 3. 나의 결과 계산
     const answers: string[] = [];
     for (let i = 1; i <= 10; i++) {
       const value = localStorage.getItem(`Q${i}`);
@@ -120,33 +91,22 @@ export default function ResultPage() {
     if (answers.length === 10) {
       const { type, title, description, tmi, nickname, advice } =
         calculateResult(answers);
-
-      setResult({
-        type,
-        title,
-        description,
-        tmi,
-        nickname,
-        advice,
-      });
+      setResult({ type, title, description, tmi, nickname, advice });
     }
   }, []);
 
   React.useEffect(() => {
-    // 공유자 정보 가져오기
     const from = localStorage.getItem("from");
     const fromType = localStorage.getItem("fromType");
     const fromNickname = localStorage.getItem("fromNickname");
 
     if (from && fromType && fromNickname) {
-      // setShowModal(true);
       setFromInfo({
-        from: from,
+        from,
         fromType,
         fromNickname: decodeURIComponent(fromNickname),
       });
 
-      // 궁합 찾기
       if (result) {
         const myType = result.type;
         const matchKey = `${fromType}_${myType}`;
@@ -158,6 +118,7 @@ export default function ResultPage() {
           compatibilityDescriptions[
             reverseMatchKey as keyof typeof compatibilityDescriptions
           ];
+
         if (comp) {
           setCompatibility(comp);
         }
@@ -171,7 +132,6 @@ export default function ResultPage() {
     }
   }, [result]);
 
-  // nickname이 바뀌면 saveRelation 실행
   React.useEffect(() => {
     if (nickname) {
       saveRelation();
@@ -201,9 +161,6 @@ export default function ResultPage() {
     closeModal();
     const type = result?.type;
 
-    alert("uuid :" + uuid);
-    alert("nicknameInput :" + nicknameInput);
-    alert("type :" + type);
     await fetch("/api/user", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -226,25 +183,17 @@ export default function ResultPage() {
 
   const saveRelation = async () => {
     const from = localStorage.getItem("from");
-    // ✅ save-relation API 호출 추가
     const myUuid = localStorage.getItem("uuid");
 
-    alert("from :" + from);
-    alert("myUuid :" + myUuid);
     if (from && myUuid) {
       const relationSaved = localStorage.getItem("relationSaved");
 
-      alert(1);
-      // ✅ relation 저장 안했을 때만 호출
       if (!relationSaved) {
-        alert("fromUuid: " + from);
-        alert("toUuid: " + myUuid);
         fetch("/api/relation", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ fromUuid: from, toUuid: myUuid }),
         }).then(() => {
-          // 저장 완료 후 relationSaved 플래그 남기기
           localStorage.setItem("relationSaved", "true");
         });
       }
