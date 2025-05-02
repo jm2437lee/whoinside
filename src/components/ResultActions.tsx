@@ -4,9 +4,9 @@ import * as React from "react";
 import { useState } from "react";
 
 interface ResultActionsProps {
-  uuid: string;
-  type: string;
-  nickname: string;
+  uuid: string | null;
+  type: string | null;
+  nickname: string | null;
 }
 
 export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
@@ -27,7 +27,8 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
   };
 
   const handleSubmit = async () => {
-    if (!isValid || !isAgreed || isSending) return;
+    if (!isValid || !isAgreed || isSending || !uuid || !type || !nickname)
+      return;
 
     try {
       setIsSending(true);
