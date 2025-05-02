@@ -162,27 +162,7 @@ export default function ResultPage() {
           setCompatibility(comp);
         }
 
-        // ✅ save-relation API 호출 추가
-        const myUuid = localStorage.getItem("uuid");
-
-        if (from && myUuid) {
-          const relationSaved = localStorage.getItem("relationSaved");
-
-          // ✅ relation 저장 안했을 때만 호출
-          if (!relationSaved) {
-            fetch("/api/relation", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ fromUuid: from, toUuid: myUuid }),
-            }).then(() => {
-              // 저장 완료 후 relationSaved 플래그 남기기
-              localStorage.setItem("relationSaved", "true");
-            });
-          }
-          if (!nickname) {
-            setShowModal(true);
-          }
-        }
+        saveRelation();
       }
     }
   }, [result]);
@@ -217,6 +197,7 @@ export default function ResultPage() {
       body: JSON.stringify({ uuid, nickname: nicknameInput, type }),
     });
     setNickname(nicknameInput);
+    saveRelation();
   };
 
   const confirmOnlyShare = async () => {
@@ -228,6 +209,31 @@ export default function ResultPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ uuid, nickname, type }),
     });
+  };
+
+  const saveRelation = async () => {
+    const from = localStorage.getItem("from");
+    // ✅ save-relation API 호출 추가
+    const myUuid = localStorage.getItem("uuid");
+
+    if (from && myUuid) {
+      const relationSaved = localStorage.getItem("relationSaved");
+
+      // ✅ relation 저장 안했을 때만 호출
+      if (!relationSaved) {
+        fetch("/api/relation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fromUuid: from, toUuid: myUuid }),
+        }).then(() => {
+          // 저장 완료 후 relationSaved 플래그 남기기
+          localStorage.setItem("relationSaved", "true");
+        });
+      }
+      if (!nickname) {
+        setShowModal(true);
+      }
+    }
   };
 
   return (
