@@ -40,7 +40,13 @@ export default async function MyPage({ params }: MyPageProps) {
   console.log("~~~~~toUuids", toUuids);
 
   if (toUuids.length === 0) {
-    return <MyPageContent nickname={myUser.nickname} connections={[]} />;
+    return (
+      <MyPageContent
+        myType={myUser.type}
+        nickname={myUser.nickname}
+        connections={[]}
+      />
+    );
   }
 
   // 3. 공유 받은 사람들 정보 가져오기
@@ -54,6 +60,7 @@ export default async function MyPage({ params }: MyPageProps) {
 
   return (
     <MyPageContent
+      myType={myUser.type}
       nickname={myUser.nickname}
       connections={connectedUsers.map((user) => ({
         nickname: user.nickname,

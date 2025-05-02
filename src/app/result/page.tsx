@@ -320,14 +320,18 @@ export default function ResultPage() {
                 className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700"
               >
                 <Users size={20} />
-                나의 관계 보기
+                공유한 친구와 궁합 보기
               </a>
             )}
           </p>
 
           {/* 다시 테스트하기와 이메일 입력 섹션 */}
           <div className="mt-8 space-y-4">
-            <ResultActions />
+            <ResultActions
+              uuid={uuid}
+              type={result?.type}
+              nickname={nickname}
+            />
           </div>
         </div>
       </div>

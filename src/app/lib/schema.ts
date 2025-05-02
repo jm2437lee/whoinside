@@ -8,6 +8,7 @@ export const users = mysqlTable("users", {
   uuid: varchar("uuid", { length: 255 }).notNull().unique(),
   nickname: varchar("nickname", { length: 100 }).notNull(),
   type: varchar("type", { length: 3 }).notNull(),
+  email: varchar("email", { length: 255 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
