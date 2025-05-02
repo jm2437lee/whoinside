@@ -195,9 +195,7 @@ export default function ResultPage() {
   const confirmNicknameAndShare = async (nicknameInput: string) => {
     closeModal();
 
-    setTimeout(() => {
-      handleKakaoShare(nicknameInput);
-    }, 200); // 살짝 딜레이 줘서 자연스럽게
+    handleKakaoShare(nicknameInput);
 
     const uuid = localStorage.getItem("uuid");
     const type = result?.type;
@@ -221,10 +219,15 @@ export default function ResultPage() {
     setNickname(nicknameInput);
   };
 
-  const confirmOnlyShare = () => {
-    setTimeout(() => {
-      handleKakaoShare(nickname);
-    }, 200); //
+  const confirmOnlyShare = async () => {
+    handleKakaoShare(nickname);
+    const type = result?.type;
+
+    await fetch("/api/user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uuid, nickname, type }),
+    });
   };
 
   return (
