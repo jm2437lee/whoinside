@@ -22,11 +22,14 @@ export default function NicknameModal({
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
       <div className="bg-white rounded-xl p-8 w-full max-w-sm space-y-4">
         <h2 className="text-2xl font-bold text-center text-gray-800">
-          이름 입력
+          닉네임 입력
         </h2>
+        <p className="text-sm text-gray-500">
+          친구가 알아볼 수 있는 닉네임을 입력해주세요.
+        </p>
         <input
           className="w-full border rounded-lg p-3 text-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-          placeholder="이름을 입력해주세요"
+          placeholder="닉네임을 입력해주세요"
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
           onKeyDown={(e) => {
@@ -40,10 +43,14 @@ export default function NicknameModal({
         <div className="flex gap-4 justify-center">
           <Button
             onClick={() => {
-              if (nickname.trim()) {
-                onConfirm(nickname.trim());
-              }
+              onConfirm(nickname.trim());
             }}
+            disabled={!nickname.trim()}
+            className={`${
+              !nickname.trim()
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300"
+                : "bg-purple-600 hover:bg-purple-700"
+            }`}
           >
             {isShared ? "입력하기" : "공유하기"}
           </Button>

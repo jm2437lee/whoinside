@@ -102,7 +102,7 @@ export default function PrivacyPolicy() {
             </p>
             <div className="mt-2">
               <p>• 개인정보 보호책임자</p>
-              <p className="ml-4">- 이메일: whoinside.help@gmail.com</p>
+              <p className="ml-4">- 이메일: jamescode.kr@gmail.com</p>
             </div>
           </section>
 

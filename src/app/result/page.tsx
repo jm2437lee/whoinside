@@ -87,6 +87,17 @@ export default function ResultPage() {
     }
   };
 
+  const openToast = (text: string) => {
+    const toast = document.createElement("div");
+    toast.className =
+      "fixed top-4 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-lg z-[9999]";
+    toast.textContent = text;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  };
+
   const handleShare = (
     type: "kakao" | "link" | "twitter" | "instagram",
     forceNickname?: string
@@ -110,14 +121,7 @@ export default function ResultPage() {
         break;
       case "link":
         navigator.clipboard.writeText(shareUrl);
-        const toast = document.createElement("div");
-        toast.className =
-          "fixed top-4 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-lg z-[9999]";
-        toast.textContent = "링크가 복사되었습니다";
-        document.body.appendChild(toast);
-        setTimeout(() => {
-          toast.remove();
-        }, 3000);
+        openToast("링크가 복사되었습니다");
         break;
       case "twitter":
         const twitterText = `나의 감정 성향: ${result.nickname}\n${result.tmi}\n\n친구들과 궁합을 확인해보세요!`;
@@ -142,6 +146,7 @@ export default function ResultPage() {
               "Instagram 앱이 필요합니다. 링크를 복사하여 직접 공유해주세요."
             );
             navigator.clipboard.writeText(shareUrl);
+            openToast("링크가 복사되었습니다");
           }, 500);
         } else {
           // 데스크톱에서는 바로 알림
@@ -149,6 +154,7 @@ export default function ResultPage() {
             "Instagram 공유는 모바일 앱에서만 가능합니다. 링크를 복사하여 직접 공유해주세요."
           );
           navigator.clipboard.writeText(shareUrl);
+          openToast("링크가 복사되었습니다");
         }
         break;
     }
@@ -486,6 +492,37 @@ export default function ResultPage() {
             </motion.div>
           )}
 
+          {/* 다시 테스트하기와 이메일 입력 섹션 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 3.4, duration: 0.5 }}
+            className="mt-8 space-y-4"
+          >
+            <div className="text-center space-y-6">
+              <div className="space-y-3">
+                <h3 className="text-xl font-bold text-purple-700">
+                  🤔 감정을 공유할 친구들과의 궁합이 궁금하다면?
+                </h3>
+                <p className="text-gray-600">
+                  이메일을 남기고 친구들과 테스트 결과를 공유하세요!
+                  <br />
+                  <span className="text-purple-600 font-medium">
+                    친구가 테스트에 참여할 때마다
+                  </span>{" "}
+                  궁합 결과를 보내드려요
+                  <br />
+                  (스팸함을 꼭 확인해주세요!)
+                </p>
+              </div>
+            </div>
+            <ResultActions
+              uuid={uuid}
+              type={result?.type}
+              nickname={nickname}
+            />
+          </motion.div>
+
           {/* 공유 버튼 섹션 */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -658,37 +695,12 @@ export default function ResultPage() {
                 </div>
               </div>
             </div>
-          </motion.div>
-
-          {/* 다시 테스트하기와 이메일 입력 섹션 */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 3.4, duration: 0.5 }}
-            className="mt-8 space-y-4"
-          >
-            <div className="text-center space-y-6">
-              <div className="space-y-3">
-                <h3 className="text-xl font-bold text-purple-700">
-                  🤔 친구들과 나의 궁합이 궁금하다면?
-                </h3>
-                <p className="text-gray-600">
-                  이메일을 남기고 친구들의 테스트 결과를 받아보세요!
-                  <br />
-                  <span className="text-purple-600 font-medium">
-                    친구가 테스트에 참여할 때마다
-                  </span>{" "}
-                  궁합 결과를 보내드려요
-                  <br />
-                  (스팸함을 꼭 확인해주세요!)
-                </p>
-              </div>
-            </div>
-            <ResultActions
-              uuid={uuid}
-              type={result?.type}
-              nickname={nickname}
-            />
+            <button
+              onClick={() => (window.location.href = "/quiz/q1")}
+              className="w-full bg-gray-200 hover:bg-gray-300 text-black font-medium py-3 rounded-xl"
+            >
+              🔄 다시 테스트하기
+            </button>
           </motion.div>
         </motion.div>
       </div>

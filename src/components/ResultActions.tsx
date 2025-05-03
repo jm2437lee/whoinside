@@ -98,16 +98,15 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
             >
               [필수] 개인정보 수집 및 이용에 동의합니다.
             </label>
-            <p className="text-sm text-muted-foreground">
-              수집된 이메일과 테스트 결과는 리포트 발송 및 서비스 제공 목적으로
-              사용됩니다.
-              <br />
-              수집된 모든 정보는 6개월간 보관 후 파기됩니다.
-              <br />
-              <Link href="/privacy" className="text-purple-600 hover:underline">
+            <p className="text-xs text-gray-500 mt-2">
+              <a
+                href="/privacy"
+                target="_blank"
+                className="underline hover:text-gray-700"
+              >
                 개인정보처리방침
-              </Link>
-              을 참고해주세요.
+              </a>
+              에 동의하고 이메일을 입력합니다.
             </p>
           </div>
         </div>
@@ -122,13 +121,7 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
             : "bg-gray-300 text-gray-500 cursor-not-allowed"
         }`}
       >
-        {isSending ? "발송 중..." : "궁합 받아보기"}
-      </button>
-      <button
-        onClick={() => (window.location.href = "/quiz/q1")}
-        className="w-full bg-gray-200 hover:bg-gray-300 text-black font-medium py-3 rounded-xl"
-      >
-        🔄 다시 테스트하기
+        {isSending ? "발송 중..." : "궁합 결과 페이지 받아보기"}
       </button>
     </div>
   );
