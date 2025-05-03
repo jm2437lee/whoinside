@@ -284,16 +284,14 @@ export default function ResultPage() {
               transition={{ delay: 1.2, duration: 0.5 }}
               className="flex flex-col items-center gap-4"
             >
-              <div className="relative w-full max-w-xs mx-auto">
+              <div className="relative w-full max-w-xs mx-auto flex justify-center">
                 <div className="absolute inset-0 bg-purple-200 rounded-xl blur-xl opacity-20"></div>
                 <Image
                   src={reaction.img}
                   alt="성향 반응 이미지"
-                  width={0}
-                  height={0}
-                  sizes="100vw"
-                  className="relative w-full rounded-xl shadow-lg hover:scale-105 transition-transform duration-300"
-                  style={{ width: "auto", height: "auto" }}
+                  width={300}
+                  height={300}
+                  className="relative rounded-xl shadow-lg hover:scale-105 transition-transform duration-300"
                   priority
                 />
               </div>
@@ -401,7 +399,7 @@ export default function ResultPage() {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 3.2, duration: 0.5, type: "spring" }}
-                  className="bg-purple-600 text-white px-4 py-1 rounded-full text-sm font-medium shadow-lg"
+                  className="whitespace-nowrap bg-purple-600 text-white px-4 py-1 rounded-full text-sm font-medium shadow-lg"
                 >
                   Share with friends! ✨
                 </motion.div>
@@ -419,10 +417,11 @@ export default function ResultPage() {
                     </div>
                   </div>
                 </div>
-                <div className="flex justify-center gap-6 mt-8">
+                <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-6 mt-4 sm:mt-8 px-4 sm:px-0">
                   <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
+                    className="w-full sm:w-auto"
                   >
                     <Button
                       variant="outline"
@@ -433,18 +432,18 @@ export default function ResultPage() {
                         }
                         handleKakaoShare(nickname);
                       }}
-                      className="relative bg-yellow-400 hover:bg-yellow-500 border-yellow-500 px-8 py-4 rounded-2xl group"
+                      className="relative w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 border-yellow-500 px-4 sm:px-6 py-3 rounded-xl sm:rounded-2xl group"
                     >
-                      <div className="relative flex items-center gap-3">
+                      <div className="relative flex items-center justify-center sm:justify-start gap-2 sm:gap-3">
                         <Image
                           src="/icon_kakao.png"
                           alt="카카오톡 공유"
-                          width={40}
-                          height={40}
+                          width={32}
+                          height={32}
                           className="transition-transform"
                           priority
                         />
-                        <span className="text-[#3A1D1D] font-medium">
+                        <span className="text-[#3A1D1D] text-sm sm:text-base font-medium">
                           카카오톡 공유
                         </span>
                       </div>
@@ -453,6 +452,7 @@ export default function ResultPage() {
                   <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
+                    className="w-full sm:w-auto"
                   >
                     <Button
                       variant="outline"
@@ -474,13 +474,13 @@ export default function ResultPage() {
                           toast.remove();
                         }, 3000);
                       }}
-                      className="relative bg-white hover:bg-purple-50 border-purple-200 px-8 py-4 rounded-2xl group"
+                      className="relative w-full sm:w-auto bg-white hover:bg-purple-50 border-purple-200 px-4 sm:px-6 py-3 rounded-xl sm:rounded-2xl group"
                     >
-                      <div className="relative flex items-center gap-3">
+                      <div className="relative flex items-center justify-center sm:justify-start gap-2 sm:gap-3">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          width="40"
-                          height="40"
+                          width="32"
+                          height="32"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -492,7 +492,7 @@ export default function ResultPage() {
                           <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
                           <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                         </svg>
-                        <span className="text-purple-600 font-medium">
+                        <span className="text-purple-600 text-sm sm:text-base font-medium">
                           링크 복사
                         </span>
                       </div>
@@ -510,6 +510,23 @@ export default function ResultPage() {
             transition={{ delay: 3.4, duration: 0.5 }}
             className="mt-8 space-y-4"
           >
+            <div className="text-center space-y-6">
+              <div className="space-y-3">
+                <h3 className="text-xl font-bold text-purple-700">
+                  🤔 친구들과 나의 궁합이 궁금하다면?
+                </h3>
+                <p className="text-gray-600">
+                  이메일을 남기고 친구들의 테스트 결과를 받아보세요!
+                  <br />
+                  <span className="text-purple-600 font-medium">
+                    친구가 테스트에 참여할 때마다
+                  </span>{" "}
+                  궁합 결과를 보내드려요
+                  <br />
+                  (스팸함을 꼭 확인해주세요!)
+                </p>
+              </div>
+            </div>
             <ResultActions
               uuid={uuid}
               type={result?.type}
