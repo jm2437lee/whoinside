@@ -61,7 +61,9 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
         throw new Error("이메일 발송에 실패했습니다.");
       }
 
-      alert("이메일이 발송되었습니다. 메일함을 확인해주세요!");
+      alert(
+        "이메일이 발송되었습니다. 메일함을 확인해주세요!(스팸함 확인 필요)"
+      );
     } catch (error) {
       console.error("Error:", error);
       alert("처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
