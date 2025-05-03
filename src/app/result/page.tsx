@@ -43,6 +43,9 @@ export default function ResultPage() {
   const [nickname, setNickname] = React.useState("");
   const [relationSaved, setRelationSaved] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [pendingShareType, setPendingShareType] = React.useState<
+    "kakao" | "link" | "twitter" | "instagram" | null
+  >(null);
 
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
@@ -84,10 +87,77 @@ export default function ResultPage() {
     }
   };
 
-  // 1. 공유받지 않은 경우의 공유버튼 클릭 -> 닉네임 입력 -> 유저정보 저장 -> 카카오 공유
+  const handleShare = (
+    type: "kakao" | "link" | "twitter" | "instagram",
+    forceNickname?: string
+  ) => {
+    const currentNickname = forceNickname || nickname;
+    if (!currentNickname) {
+      setShowModal(true);
+      return;
+    }
+
+    const uuid = localStorage.getItem("uuid") || "anonymous";
+    const shareUrl = `${
+      process.env.NEXT_PUBLIC_DOMAIN_URL
+    }/?from=${uuid}&type=${result?.type}&nickname=${encodeURIComponent(
+      currentNickname
+    )}`;
+
+    switch (type) {
+      case "kakao":
+        handleKakaoShare(currentNickname);
+        break;
+      case "link":
+        navigator.clipboard.writeText(shareUrl);
+        const toast = document.createElement("div");
+        toast.className =
+          "fixed top-4 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-lg z-[9999]";
+        toast.textContent = "링크가 복사되었습니다";
+        document.body.appendChild(toast);
+        setTimeout(() => {
+          toast.remove();
+        }, 3000);
+        break;
+      case "twitter":
+        const twitterText = `나의 감정 성향: ${result.nickname}\n${result.tmi}\n\n친구들과 궁합을 확인해보세요!`;
+        window.open(
+          `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+            twitterText
+          )}&url=${encodeURIComponent(shareUrl)}`,
+          "_blank"
+        );
+        break;
+      case "instagram":
+        // 모바일 기기 체크
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        if (isMobile) {
+          // 모바일에서는 Instagram 앱으로 이동 시도
+          window.location.href = `instagram://story-camera`;
+
+          // 앱이 실행되지 않을 경우를 대비해 시간 지연 후 알림
+          setTimeout(() => {
+            alert(
+              "Instagram 앱이 필요합니다. 링크를 복사하여 직접 공유해주세요."
+            );
+            navigator.clipboard.writeText(shareUrl);
+          }, 500);
+        } else {
+          // 데스크톱에서는 바로 알림
+          alert(
+            "Instagram 공유는 모바일 앱에서만 가능합니다. 링크를 복사하여 직접 공유해주세요."
+          );
+          navigator.clipboard.writeText(shareUrl);
+        }
+        break;
+    }
+  };
+
+  // 1. 공유받지 않은 경우의 공유버튼 클릭 -> 닉네임 입력 -> 유저정보 저장 -> 각 플랫폼별 공유
   const confirmNicknameAndShare = async (
     nicknameInput: string,
-    isKakao: boolean = true
+    shareType: "kakao" | "link" | "twitter" | "instagram"
   ) => {
     const type = result?.type;
     setIsLoading(true);
@@ -103,27 +173,8 @@ export default function ResultPage() {
       localStorage.setItem("myNickname", nicknameInput); // 닉네임을 localStorage에 저장
       closeModal();
 
-      if (isKakao) {
-        handleKakaoShare(nicknameInput);
-      } else {
-        // 링크 복사 로직
-        const shareUrl = `${
-          process.env.NEXT_PUBLIC_DOMAIN_URL
-        }/?from=${uuid}&type=${result?.type}&nickname=${encodeURIComponent(
-          nicknameInput
-        )}`;
-        navigator.clipboard.writeText(shareUrl);
-
-        // 복사 완료 토스트 메시지
-        const toast = document.createElement("div");
-        toast.className =
-          "fixed top-4 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-lg z-[9999]";
-        toast.textContent = "링크가 복사되었습니다";
-        document.body.appendChild(toast);
-        setTimeout(() => {
-          toast.remove();
-        }, 3000);
-      }
+      // 각 플랫폼별 공유 로직 실행
+      handleShare(shareType, nicknameInput);
     } catch (error) {
       console.error("Error saving user:", error);
     } finally {
@@ -162,19 +213,6 @@ export default function ResultPage() {
       console.error("Error:", error);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  // 공유받은 경우의 공유버튼 클릭 -> 카카오 공유만 실행
-  const handleShare = () => {
-    const from = localStorage.getItem("from");
-
-    if (from) {
-      // 공유받은 경우: 바로 카카오 공유
-      handleKakaoShare(nickname);
-    } else {
-      // 공유받지 않은 경우: 닉네임 모달 표시
-      setShowModal(true);
     }
   };
 
@@ -474,39 +512,39 @@ export default function ResultPage() {
                   <div className="relative">
                     <div className="relative">
                       <p className="text-purple-600 font-medium bg-purple-50/80 px-6 py-3 rounded-xl inline-block shadow-sm">
-                        카카오톡이나 링크로 공유해보세요! ✨
+                        SNS나 링크로 공유해보세요! ✨
                       </p>
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-6 mt-4 sm:mt-8 px-4 sm:px-0">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 sm:mt-8 px-4 sm:px-0">
                   <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full sm:w-auto"
                   >
                     <Button
                       variant="outline"
                       onClick={() => {
                         if (!nickname) {
-                          openModal();
-                          return;
+                          setShowModal(true);
+                          setPendingShareType("kakao");
+                        } else {
+                          handleShare("kakao");
                         }
-                        handleKakaoShare(nickname);
                       }}
-                      className="relative w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 border-yellow-500 px-4 sm:px-6 py-3 rounded-xl sm:rounded-2xl group"
+                      className="relative w-full bg-yellow-400 hover:bg-yellow-500 border-yellow-500 h-[52px] rounded-xl group"
                     >
-                      <div className="relative flex items-center justify-center sm:justify-start gap-2 sm:gap-3">
+                      <div className="relative flex flex-col items-center justify-center gap-1">
                         <Image
                           src="/icon_kakao.png"
                           alt="카카오톡 공유"
-                          width={32}
-                          height={32}
+                          width={24}
+                          height={24}
                           className="transition-transform"
                           priority
                         />
-                        <span className="text-[#3A1D1D] text-sm sm:text-base font-medium">
-                          카카오톡 공유
+                        <span className="text-[#3A1D1D] text-xs font-medium">
+                          카카오톡
                         </span>
                       </div>
                     </Button>
@@ -514,42 +552,24 @@ export default function ResultPage() {
                   <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full sm:w-auto"
                   >
                     <Button
                       variant="outline"
                       onClick={() => {
                         if (!nickname) {
-                          // 닉네임 모달을 띄울 때 isKakao=false로 설정
                           setShowModal(true);
-                          return;
+                          setPendingShareType("link");
+                        } else {
+                          handleShare("link");
                         }
-                        const uuid =
-                          localStorage.getItem("uuid") || "anonymous";
-                        const shareUrl = `${
-                          process.env.NEXT_PUBLIC_DOMAIN_URL
-                        }/?from=${uuid}&type=${
-                          result?.type
-                        }&nickname=${encodeURIComponent(nickname)}`;
-                        navigator.clipboard.writeText(shareUrl);
-
-                        // 복사 완료 토스트 메시지
-                        const toast = document.createElement("div");
-                        toast.className =
-                          "fixed top-4 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-lg z-[9999]";
-                        toast.textContent = "링크가 복사되었습니다";
-                        document.body.appendChild(toast);
-                        setTimeout(() => {
-                          toast.remove();
-                        }, 3000);
                       }}
-                      className="relative w-full sm:w-auto bg-white hover:bg-purple-50 border-purple-200 px-4 sm:px-6 py-3 rounded-xl sm:rounded-2xl group"
+                      className="relative w-full bg-white hover:bg-purple-50 border-purple-200 h-[52px] rounded-xl group"
                     >
-                      <div className="relative flex items-center justify-center sm:justify-start gap-2 sm:gap-3">
+                      <div className="relative flex flex-col items-center justify-center gap-1">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          width="32"
-                          height="32"
+                          width="24"
+                          height="24"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -561,8 +581,76 @@ export default function ResultPage() {
                           <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
                           <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                         </svg>
-                        <span className="text-purple-600 text-sm sm:text-base font-medium">
+                        <span className="text-purple-600 text-xs font-medium">
                           링크 복사
+                        </span>
+                      </div>
+                    </Button>
+                  </motion.div>
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        if (!nickname) {
+                          setShowModal(true);
+                          setPendingShareType("twitter");
+                        } else {
+                          handleShare("twitter");
+                        }
+                      }}
+                      className="relative w-full bg-black hover:bg-gray-900 border-gray-800 h-[52px] rounded-xl group"
+                    >
+                      <div className="relative flex flex-col items-center justify-center gap-1">
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <path
+                            d="M14.2833 10.1571L23.0508 0H20.9833L13.3666 8.85714L7.28327 0H0L9.15 13.3L0 23.8857H2.06751L10.0667 14.6L16.4833 23.8857H23.7666L14.2833 10.1571ZM11.1167 13.4143L10.2167 12.1571L2.83332 1.77143H6.33332L12.2667 10.0429L13.1667 11.3L20.9833 22.2H17.4833L11.1167 13.4143Z"
+                            fill="white"
+                          />
+                        </svg>
+                        <span className="text-white text-xs font-medium">
+                          X (트위터)
+                        </span>
+                      </div>
+                    </Button>
+                  </motion.div>
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        if (!nickname) {
+                          setShowModal(true);
+                          setPendingShareType("instagram");
+                        } else {
+                          handleShare("instagram");
+                        }
+                      }}
+                      className="relative w-full bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 hover:opacity-90 border-transparent h-[52px] rounded-xl group"
+                    >
+                      <div className="relative flex flex-col items-center justify-center gap-1">
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <path
+                            d="M12 2C14.717 2 15.056 2.01 16.122 2.06C17.187 2.11 17.912 2.277 18.55 2.525C19.21 2.779 19.766 3.123 20.322 3.678C20.8305 4.1779 21.224 4.78259 21.475 5.45C21.722 6.087 21.89 6.813 21.94 7.878C21.987 8.944 22 9.283 22 12C22 14.717 21.99 15.056 21.94 16.122C21.89 17.187 21.722 17.912 21.475 18.55C21.2247 19.2178 20.8311 19.8226 20.322 20.322C19.822 20.8303 19.2173 21.2238 18.55 21.475C17.913 21.722 17.187 21.89 16.122 21.94C15.056 21.987 14.717 22 12 22C9.283 22 8.944 21.99 7.878 21.94C6.813 21.89 6.088 21.722 5.45 21.475C4.78233 21.2245 4.17753 20.8309 3.678 20.322C3.16941 19.8222 2.77593 19.2175 2.525 18.55C2.277 17.913 2.11 17.187 2.06 16.122C2.013 15.056 2 14.717 2 12C2 9.283 2.01 8.944 2.06 7.878C2.11 6.812 2.277 6.088 2.525 5.45C2.77524 4.78218 3.1688 4.17732 3.678 3.678C4.17767 3.16923 4.78243 2.77573 5.45 2.525C6.088 2.277 6.812 2.11 7.878 2.06C8.944 2.013 9.283 2 12 2ZM12 7C10.6739 7 9.40215 7.52678 8.46447 8.46447C7.52678 9.40215 7 10.6739 7 12C7 13.3261 7.52678 14.5979 8.46447 15.5355C9.40215 16.4732 10.6739 17 12 17C13.3261 17 14.5979 16.4732 15.5355 15.5355C16.4732 14.5979 17 13.3261 17 12C17 10.6739 16.4732 9.40215 15.5355 8.46447C14.5979 7.52678 13.3261 7 12 7ZM18.5 6.75C18.5 6.41848 18.3683 6.10054 18.1339 5.86612C17.8995 5.6317 17.5815 5.5 17.25 5.5C16.9185 5.5 16.6005 5.6317 16.3661 5.86612C16.1317 6.10054 16 6.41848 16 6.75C16 7.08152 16.1317 7.39946 16.3661 7.63388C16.6005 7.8683 16.9185 8 17.25 8C17.5815 8 17.8995 7.8683 18.1339 7.63388C18.3683 7.39946 18.5 7.08152 18.5 6.75ZM12 9C12.7956 9 13.5587 9.31607 14.1213 9.87868C14.6839 10.4413 15 11.2044 15 12C15 12.7956 14.6839 13.5587 14.1213 14.1213C13.5587 14.6839 12.7956 15 12 15C11.2044 15 10.4413 14.6839 9.87868 14.1213C9.31607 13.5587 9 12.7956 9 12C9 11.2044 9.31607 10.4413 9.87868 9.87868C10.4413 9.31607 11.2044 9 12 9Z"
+                            fill="white"
+                          />
+                        </svg>
+                        <span className="text-white text-xs font-medium">
+                          인스타그램
                         </span>
                       </div>
                     </Button>
@@ -608,11 +696,19 @@ export default function ResultPage() {
       {showModal && (
         <NicknameModal
           isOpen={showModal}
-          onClose={closeModal}
+          onClose={() => {
+            closeModal();
+            setPendingShareType(null);
+          }}
           onConfirm={
             fromInfo
               ? confirmNickname
-              : (nickname: string) => confirmNicknameAndShare(nickname, false)
+              : (nickname: string) => {
+                  if (pendingShareType) {
+                    confirmNicknameAndShare(nickname, pendingShareType);
+                    setPendingShareType(null);
+                  }
+                }
           }
           isShared={!!fromInfo}
         />
