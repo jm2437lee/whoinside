@@ -3,6 +3,7 @@
 import QPage from "@/components/QPage";
 import { notFound, useParams } from "next/navigation";
 import ProgressBar from "@/components/ProgressBar";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function QuizPage() {
   const params = useParams();
@@ -19,9 +20,24 @@ export default function QuizPage() {
       <div className="max-w-2xl mx-auto">
         <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8 space-y-8">
           <div className="space-y-4">
-            <h1 className="text-center text-purple-900/80 text-lg font-medium">
-              Question {currentStep} of 10
-            </h1>
+            <div className="text-center">
+              <h1 className="text-purple-900/80 text-xl font-medium inline-flex items-center gap-2">
+                질문{" "}
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={currentStep}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="inline-block text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-400"
+                  >
+                    {currentStep}
+                  </motion.span>
+                </AnimatePresence>{" "}
+                /{" "}
+                <span className="text-purple-900/60 font-bold text-lg">10</span>
+              </h1>
+            </div>
             <ProgressBar step={currentStep} total={10} />
           </div>
           <QPage questionKey={qKey} />

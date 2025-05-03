@@ -85,7 +85,10 @@ export default function ResultPage() {
   };
 
   // 1. 공유받지 않은 경우의 공유버튼 클릭 -> 닉네임 입력 -> 유저정보 저장 -> 카카오 공유
-  const confirmNicknameAndShare = async (nicknameInput: string) => {
+  const confirmNicknameAndShare = async (
+    nicknameInput: string,
+    isKakao: boolean = true
+  ) => {
     const type = result?.type;
     setIsLoading(true);
     try {
@@ -99,7 +102,28 @@ export default function ResultPage() {
       setNickname(nicknameInput);
       localStorage.setItem("myNickname", nicknameInput); // 닉네임을 localStorage에 저장
       closeModal();
-      handleKakaoShare(nicknameInput);
+
+      if (isKakao) {
+        handleKakaoShare(nicknameInput);
+      } else {
+        // 링크 복사 로직
+        const shareUrl = `${
+          process.env.NEXT_PUBLIC_DOMAIN_URL
+        }/?from=${uuid}&type=${result?.type}&nickname=${encodeURIComponent(
+          nicknameInput
+        )}`;
+        navigator.clipboard.writeText(shareUrl);
+
+        // 복사 완료 토스트 메시지
+        const toast = document.createElement("div");
+        toast.className =
+          "fixed top-4 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-lg z-[9999]";
+        toast.textContent = "링크가 복사되었습니다";
+        document.body.appendChild(toast);
+        setTimeout(() => {
+          toast.remove();
+        }, 3000);
+      }
     } catch (error) {
       console.error("Error saving user:", error);
     } finally {
@@ -229,6 +253,42 @@ export default function ResultPage() {
       document.head.removeChild(script);
     };
   }, []);
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined" && result) {
+      // 동적으로 메타 태그 업데이트
+      const updateMetaTags = () => {
+        const title = `${result.nickname} - 감정 성향 테스트 결과`;
+        const description = `${result.tmi} | 나와 너의 감정 성향 궁합은 얼마나 잘 맞을까? 👀`;
+
+        // 기존 메타 태그 업데이트
+        document.title = title;
+
+        // OpenGraph 메타 태그 업데이트
+        const metaTags = {
+          "og:title": title,
+          "og:description": description,
+          "og:image": `${process.env.NEXT_PUBLIC_DOMAIN_URL}/main.png`,
+          "og:url": window.location.href,
+          "twitter:title": title,
+          "twitter:description": description,
+          "twitter:image": `${process.env.NEXT_PUBLIC_DOMAIN_URL}/main.png`,
+        };
+
+        Object.entries(metaTags).forEach(([property, content]) => {
+          let meta = document.querySelector(`meta[property="${property}"]`);
+          if (!meta) {
+            meta = document.createElement("meta");
+            meta.setAttribute("property", property);
+            document.head.appendChild(meta);
+          }
+          meta.setAttribute("content", content);
+        });
+      };
+
+      updateMetaTags();
+    }
+  }, [result]);
 
   if (!result)
     return (
@@ -459,6 +519,11 @@ export default function ResultPage() {
                     <Button
                       variant="outline"
                       onClick={() => {
+                        if (!nickname) {
+                          // 닉네임 모달을 띄울 때 isKakao=false로 설정
+                          setShowModal(true);
+                          return;
+                        }
                         const uuid =
                           localStorage.getItem("uuid") || "anonymous";
                         const shareUrl = `${
@@ -544,7 +609,11 @@ export default function ResultPage() {
         <NicknameModal
           isOpen={showModal}
           onClose={closeModal}
-          onConfirm={fromInfo ? confirmNickname : confirmNicknameAndShare}
+          onConfirm={
+            fromInfo
+              ? confirmNickname
+              : (nickname: string) => confirmNicknameAndShare(nickname, false)
+          }
           isShared={!!fromInfo}
         />
       )}
