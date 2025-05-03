@@ -1,41 +1,123 @@
-import React from "react";
+"use client";
+
+import { motion } from "framer-motion";
 
 export default function PrivacyPolicy() {
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">개인정보 처리방침</h1>
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white py-12 px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-8"
+      >
+        <h1 className="text-3xl font-bold text-purple-800 mb-8">
+          개인정보처리방침
+        </h1>
 
-      <div className="space-y-6">
-        <section>
-          <h2 className="text-lg font-semibold mb-2">1. 수집하는 개인정보</h2>
-          <p>서비스 제공을 위해 다음의 개인정보를 수집합니다:</p>
-          <p className="ml-4 mt-1">• 이메일 주소</p>
-        </section>
+        <div className="space-y-6 text-gray-700">
+          <section>
+            <h2 className="text-xl font-semibold text-purple-700 mb-3">
+              1. 개인정보의 처리 목적
+            </h2>
+            <p className="leading-relaxed">
+              Who Inside(이하 &apos;회사&apos;)는 다음의 목적을 위하여
+              개인정보를 처리합니다. 처리하고 있는 개인정보는 다음의 목적 이외의
+              용도로는 이용되지 않으며, 이용 목적이 변경되는 경우에는 별도의
+              동의를 받는 등 필요한 조치를 이행할 예정입니다.
+            </p>
+            <ul className="list-disc ml-6 mt-2 space-y-2">
+              <li>감정 성향 테스트 결과 제공</li>
+              <li>테스트 결과 리포트 이메일 발송</li>
+              <li>서비스 이용 통계 및 분석</li>
+            </ul>
+          </section>
 
-        <section>
-          <h2 className="text-lg font-semibold mb-2">2. 수집 목적</h2>
-          <p>
-            수집된 이메일은 서비스 이용 관련 정보 제공 목적으로만 사용됩니다.
-          </p>
-        </section>
+          <section>
+            <h2 className="text-xl font-semibold text-purple-700 mb-3">
+              2. 수집하는 개인정보 항목
+            </h2>
+            <p className="leading-relaxed">
+              회사는 다음과 같은 개인정보 항목을 수집합니다:
+            </p>
+            <ul className="list-disc ml-6 mt-2 space-y-2">
+              <li>이메일 주소</li>
+              <li>닉네임</li>
+              <li>감정 성향 테스트 응답 및 결과</li>
+            </ul>
+          </section>
 
-        <section>
-          <h2 className="text-lg font-semibold mb-2">3. 개인정보 보유기간</h2>
-          <p>서비스 이용 종료 또는 이용자의 삭제 요청 시까지 보관됩니다.</p>
-        </section>
+          <section>
+            <h2 className="text-xl font-semibold text-purple-700 mb-3">
+              3. 개인정보의 보유 및 이용기간
+            </h2>
+            <p className="leading-relaxed">
+              회사는 수집한 개인정보를 다음과 같이 보유 및 이용합니다:
+            </p>
+            <ul className="list-disc ml-6 mt-2 space-y-2">
+              <li>
+                닉네임, 이메일 및 테스트 결과: 서비스 제공 목적으로 6개월간 보관
+              </li>
+            </ul>
+          </section>
 
-        <section>
-          <h2 className="text-lg font-semibold mb-2">4. 이용자 권리</h2>
-          <p>이용자는 언제든지 자신의 개인정보 삭제를 요청할 수 있습니다.</p>
-        </section>
+          <section>
+            <h2 className="text-xl font-semibold text-purple-700 mb-3">
+              4. 개인정보의 파기절차 및 방법
+            </h2>
+            <p className="leading-relaxed">
+              회사는 개인정보 보유기간의 경과, 처리목적 달성 등 개인정보가
+              불필요하게 되었을 때에는 지체없이 해당 개인정보를 파기합니다.
+            </p>
+            <ul className="list-disc ml-6 mt-2 space-y-2">
+              <li>수집된 모든 개인정보는 보유기간 종료 후 즉시 파기됩니다.</li>
+            </ul>
+          </section>
 
-        <section>
-          <h2 className="text-lg font-semibold mb-2">5. 문의하기</h2>
-          <p>개인정보 관련 문의: jamescode.kr@gmail.com </p>
-        </section>
+          <section>
+            <h2 className="text-xl font-semibold text-purple-700 mb-3">
+              5. 개인정보의 안전성 확보조치
+            </h2>
+            <p className="leading-relaxed">
+              회사는 개인정보의 안전성 확보를 위해 다음과 같은 조치를 취하고
+              있습니다:
+            </p>
+            <ul className="list-disc ml-6 mt-2 space-y-2">
+              <li>개인정보의 암호화</li>
+              <li>
+                해킹이나 컴퓨터 바이러스로부터 보호하기 위한 보안프로그램 설치
+              </li>
+              <li>개인정보에 대한 접근 제한</li>
+            </ul>
+          </section>
 
-        <p className="text-sm text-gray-600 mt-8">시행일자: 2025년 5월 1일</p>
-      </div>
+          <section>
+            <h2 className="text-xl font-semibold text-purple-700 mb-3">
+              6. 개인정보 보호책임자
+            </h2>
+            <p className="leading-relaxed">
+              회사는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보
+              처리와 관련한 정보주체의 불만처리 및 피해구제 등을 위하여 아래와
+              같이 개인정보 보호책임자를 지정하고 있습니다.
+            </p>
+            <div className="mt-2">
+              <p>• 개인정보 보호책임자</p>
+              <p className="ml-4">- 이메일: whoinside.help@gmail.com</p>
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-purple-700 mb-3">
+              7. 개인정보처리방침의 변경
+            </h2>
+            <p className="leading-relaxed">
+              이 개인정보처리방침은 2024년 1월 1일부터 적용됩니다. 법령 및
+              방침에 따른 변경내용의 추가, 삭제 및 정정이 있는 경우에는
+              변경사항의 시행 7일 전부터 공지사항을 통하여 고지할 것입니다.
+            </p>
+          </section>
+        </div>
+      </motion.div>
     </div>
   );
 }

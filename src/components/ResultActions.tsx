@@ -2,16 +2,16 @@
 
 import * as React from "react";
 import { useState } from "react";
+import Link from "next/link";
 
 interface ResultActionsProps {
   uuid: string | null;
-  type: string | null;
-  nickname: string | null;
+  type: string;
+  nickname: string;
 }
 
 export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
   const [email, setEmail] = useState("");
-  const [isValid, setIsValid] = useState(false);
   const [isAgreed, setIsAgreed] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
@@ -20,14 +20,8 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
     return regex.test(email);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setEmail(value);
-    setIsValid(validateEmail(value));
-  };
-
   const handleSubmit = async () => {
-    if (!isValid || !isAgreed || isSending || !uuid || !type || !nickname)
+    if (!validateEmail(email) || !isAgreed || isSending || !uuid || !type)
       return;
 
     try {
@@ -52,7 +46,7 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
         throw new Error(data.message || "저장에 실패했습니다.");
       }
 
-      alert(`이메일이 저장 되었습니다!`);
+      alert("이메일이 저장되었습니다!");
     } catch (error) {
       console.error("Error:", error);
       alert("리포트 발송에 실패했습니다. 잠시 후 다시 시도해주세요.");
@@ -62,67 +56,57 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
   };
 
   return (
-    <div className="w-full flex flex-col gap-4 mt-10">
-      <div className="space-y-4 bg-purple-50 p-6 rounded-xl">
-        <h3 className="text-lg font-semibold text-purple-700">
-          📩 공유한 친구와 궁합을 메일로 받아 보기
-        </h3>
-
+    <div className="space-y-4">
+      <div className="space-y-2">
         <input
           type="email"
+          placeholder="이메일 주소를 입력해주세요"
           value={email}
-          onChange={handleChange}
-          placeholder="이메일 주소를 입력하세요"
-          className={`w-full px-4 py-3 text-lg rounded-xl border transition focus:outline-none focus:ring-2 ${
-            email === ""
-              ? "border-gray-300"
-              : isValid
-              ? "border-green-500 focus:ring-green-400"
-              : "border-red-500 focus:ring-red-400"
-          }`}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
         />
 
-        <div className="flex items-start gap-2 text-sm">
+        <div className="flex items-start gap-2 mt-4">
           <input
             type="checkbox"
-            id="privacy-agreement"
+            id="privacy"
             checked={isAgreed}
             onChange={(e) => setIsAgreed(e.target.checked)}
             className="mt-1"
           />
-          <label
-            htmlFor="privacy-agreement"
-            className="text-gray-600 leading-relaxed"
-          >
-            <span className="text-purple-600">[필수] </span>
-            이메일 수집 및 발송에 동의합니다.
-            <br />
-            수집된 이메일은 리포트 발송 목적으로만 사용되며, 발송 후 즉시
-            폐기됩니다.
-            <br />
-            상세 내용은{" "}
-            <a
-              href="/privacy"
-              className="text-purple-600 underline hover:text-purple-700"
+          <div className="space-y-1">
+            <label
+              htmlFor="privacy"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              개인정보처리방침
-            </a>
-            을 참고해주세요.
-          </label>
+              [필수] 개인정보 수집 및 이용에 동의합니다.
+            </label>
+            <p className="text-sm text-muted-foreground">
+              수집된 이메일과 테스트 결과는 리포트 발송 및 서비스 제공 목적으로
+              사용됩니다.
+              <br />
+              수집된 모든 정보는 6개월간 보관 후 파기됩니다.
+              <br />
+              <Link href="/privacy" className="text-purple-600 hover:underline">
+                개인정보처리방침
+              </Link>
+              을 참고해주세요.
+            </p>
+          </div>
         </div>
-
-        <button
-          onClick={handleSubmit}
-          disabled={!isValid || !isAgreed || isSending}
-          className={`w-full text-white font-semibold py-3 rounded-xl transition ${
-            isValid && isAgreed && !isSending
-              ? "bg-purple-500 hover:bg-purple-600"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
-        >
-          {isSending ? "발송 중..." : "궁합 받아보기"}
-        </button>
       </div>
+
+      <button
+        onClick={handleSubmit}
+        disabled={!validateEmail(email) || !isAgreed || isSending}
+        className={`w-full text-white font-semibold py-3 rounded-xl transition ${
+          validateEmail(email) && isAgreed && !isSending
+            ? "bg-purple-500 hover:bg-purple-600"
+            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+        }`}
+      >
+        {isSending ? "발송 중..." : "궁합 받아보기"}
+      </button>
       <button
         onClick={() => (window.location.href = "/quiz/q1")}
         className="w-full bg-gray-200 hover:bg-gray-300 text-black font-medium py-3 rounded-xl"
