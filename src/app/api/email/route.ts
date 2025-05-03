@@ -28,7 +28,7 @@ export async function POST(req: Request) {
               지금 바로 확인해보세요!
             </p>
             <a 
-              href="https://whoinside.vercel.app/me/${uuid}" 
+              href="${process.env.NEXT_PUBLIC_DOMAIN_URL}/me/${uuid}" 
               style="display: inline-block; background-color: #6B46C1; color: white; padding: 15px 30px; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 16px;"
             >
               궁합 결과 확인하기
