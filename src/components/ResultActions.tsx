@@ -27,7 +27,8 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
     try {
       setIsSending(true);
 
-      const response = await fetch("/api/user", {
+      // 1. 사용자 정보 저장
+      const userResponse = await fetch("/api/user", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -40,16 +41,30 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
         }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "저장에 실패했습니다.");
+      if (!userResponse.ok) {
+        throw new Error("사용자 정보 저장에 실패했습니다.");
       }
 
-      alert("이메일이 저장되었습니다!");
+      // 2. 이메일 발송
+      const emailResponse = await fetch("/api/email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          uuid,
+        }),
+      });
+
+      if (!emailResponse.ok) {
+        throw new Error("이메일 발송에 실패했습니다.");
+      }
+
+      alert("이메일이 발송되었습니다. 메일함을 확인해주세요!");
     } catch (error) {
       console.error("Error:", error);
-      alert("리포트 발송에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      alert("처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
       setIsSending(false);
     }
