@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { motion } from "framer-motion";
 
 type Props = {
   step: number;
@@ -8,18 +9,23 @@ type Props = {
 };
 
 export default function ProgressBar({ step, total }: Props) {
-  const percent = (step / total) * 100;
+  const percentage = (step / total) * 100;
 
   return (
-    <div className="w-full mb-6">
-      <div className="mb-2 text-center text-sm text-gray-600">
-        {step} / {total} 진행 중
+    <div className="w-full space-y-2">
+      <div className="h-2 bg-purple-100 rounded-full overflow-hidden">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${percentage}%` }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full"
+        />
       </div>
-      <div className="w-full h-3 bg-gray-200 rounded-full">
-        <div
-          className="h-full bg-purple-500 rounded-full transition-all"
-          style={{ width: `${percent}%` }}
-        ></div>
+      <div className="flex justify-between text-sm text-purple-600">
+        <span>
+          {step} / {total}
+        </span>
+        <span>{Math.round(percentage)}%</span>
       </div>
     </div>
   );

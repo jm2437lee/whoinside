@@ -18,6 +18,7 @@ import Image from "next/image";
 import { Suspense } from "react";
 import { SearchParamsHandler } from "@/components/SearchParamsHandler";
 import Head from "next/head";
+import { motion } from "framer-motion";
 
 const reactionGifs: Record<string, { img: string }> = {
   A1: { img: "/gifs/a1.png" },
@@ -94,6 +95,7 @@ export default function ResultPage() {
       });
 
       setNickname(nicknameInput);
+      localStorage.setItem("myNickname", nicknameInput); // 닉네임을 localStorage에 저장
       closeModal();
       handleKakaoShare(nicknameInput);
     } catch (error) {
@@ -128,6 +130,7 @@ export default function ResultPage() {
       }
 
       setNickname(nicknameInput);
+      localStorage.setItem("myNickname", nicknameInput); // 닉네임을 localStorage에 저장
       closeModal();
     } catch (error) {
       console.error("Error:", error);
@@ -175,6 +178,7 @@ export default function ResultPage() {
     const from = localStorage.getItem("from");
     const fromType = localStorage.getItem("fromType");
     const fromNickname = localStorage.getItem("fromNickname");
+    const savedNickname = localStorage.getItem("myNickname"); // 저장된 닉네임 확인
 
     if (from && fromType && fromNickname && result) {
       setFromInfo({
@@ -182,6 +186,13 @@ export default function ResultPage() {
         fromType,
         fromNickname: decodeURIComponent(fromNickname),
       });
+
+      // 저장된 닉네임이 있으면 설정하고, 없으면 모달 표시
+      if (savedNickname) {
+        setNickname(savedNickname);
+      } else {
+        setShowModal(true);
+      }
 
       // 궁합 정보 설정
       const myType = result.type;
@@ -198,9 +209,6 @@ export default function ResultPage() {
       if (comp) {
         setCompatibility(comp);
       }
-
-      // 공유받은 경우에만 바로 닉네임 모달 표시
-      setShowModal(true);
     }
   }, [result]);
 
@@ -221,178 +229,296 @@ export default function ResultPage() {
   }, []);
 
   if (!result)
-    return <div className="text-center py-20">결과를 불러오는 중...</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
 
   const reaction = reactionGifs[result.type];
 
   return (
-    <main>
+    <main className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       <Suspense>
         <SearchParamsHandler />
       </Suspense>
-      <div className="min-h-screen flex flex-col justify-center items-center px-6 py-10">
-        <div className="max-w-xl w-full space-y-6">
-          <h1 className="text-[20px] font-bold text-center text-gray-700 font-normal ">
-            <span className="align-middle">당신의 감정 성향은: </span>
-            <br />
-            <strong className="text-purple-600 text-4xl align-middle">
-              {result.nickname}
-            </strong>
-          </h1>
-          <p className="mt-4 text-purple-600 italic text-center ">
-            {result.tmi}
-          </p>
+      <div className="max-w-4xl mx-auto px-6 py-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8 space-y-8"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="text-center space-y-4"
+          >
+            <h1 className="text-[20px] font-bold text-gray-700">
+              <span className="align-middle">당신의 감정 성향은:</span>
+              <br />
+              <motion.strong
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.5 }}
+                className="text-4xl text-purple-600 inline-block mt-2"
+              >
+                {result.nickname}
+              </motion.strong>
+            </h1>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.9, duration: 0.5 }}
+              className="text-purple-600 italic"
+            >
+              {result.tmi}
+            </motion.p>
+          </motion.div>
+
           {reaction && (
-            <div className="flex flex-col items-center gap-4">
-              <Image
-                src={reaction.img}
-                alt="성향 반응 이미지"
-                width={0}
-                height={0}
-                sizes="100vw"
-                className="w-full max-w-xs rounded-xl shadow-md"
-                style={{ width: "auto", height: "auto" }}
-              />
-            </div>
-          )}
-          <p className="text-gray-700 text-lg text-center">
-            {result.description}
-          </p>
-          <div className="text-left mt-4 space-y-2 text-gray-700">
-            {/* ✨ 조언 카드 (배열형) */}
-            {Array.isArray(result.advice) && (
-              <div className="mt-8 p-6 rounded-xl bg-purple-50 shadow-inner space-y-4">
-                <h3 className="text-2xl font-bold text-purple-700 text-center">
-                  ✨ 현실 조언 카드
-                </h3>
-                <ul className="list-disc list-inside space-y-2 text-gray-800 text-base leading-relaxed">
-                  {result.advice.map((item: string, index: number) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 1.2, duration: 0.5 }}
+              className="flex flex-col items-center gap-4"
+            >
+              <div className="relative w-full max-w-xs mx-auto">
+                <div className="absolute inset-0 bg-purple-200 rounded-xl blur-xl opacity-20"></div>
+                <Image
+                  src={reaction.img}
+                  alt="성향 반응 이미지"
+                  width={0}
+                  height={0}
+                  sizes="100vw"
+                  className="relative w-full rounded-xl shadow-lg hover:scale-105 transition-transform duration-300"
+                  style={{ width: "auto", height: "auto" }}
+                  priority
+                />
               </div>
-            )}
-          </div>
+            </motion.div>
+          )}
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5, duration: 0.5 }}
+            className="text-gray-700 text-lg text-center leading-relaxed"
+          >
+            {result.description}
+          </motion.p>
+
+          {/* ✨ 조언 카드 (배열형) */}
+          {Array.isArray(result.advice) && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.8, duration: 0.5 }}
+              className="mt-8 p-6 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 shadow-inner space-y-4"
+            >
+              <h3 className="text-2xl font-bold text-purple-700 text-center">
+                ✨ 현실 조언 카드
+              </h3>
+              <ul className="list-none space-y-4">
+                {result.advice.map((item: string, index: number) => (
+                  <motion.li
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 2 + index * 0.1, duration: 0.5 }}
+                    className="flex items-start gap-3 text-gray-800 text-base leading-relaxed"
+                  >
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-200 flex items-center justify-center text-purple-700 font-medium mt-0.5">
+                      {index + 1}
+                    </span>
+                    <span className="flex-1">{item}</span>
+                  </motion.li>
+                ))}
+              </ul>
+            </motion.div>
+          )}
 
           {/* 공유자가 있다면 */}
-          {fromInfo && (
-            <div className="mt-10 p-6 rounded-xl border bg-gray-50 space-y-4">
+          {fromInfo && compatibility && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 2.3, duration: 0.5 }}
+              className="mt-10 p-6 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 space-y-4"
+            >
               <h2 className="text-xl text-center font-bold text-purple-700">
                 {fromInfo.fromNickname}
                 <span className="text-gray-500 font-normal text-lg">
                   님과의 궁합
                 </span>
-                <div>&quot;{compatibility?.title}&quot;</div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 2.5, duration: 0.5 }}
+                  className="text-2xl mt-2"
+                >
+                  &quot;{compatibility.title}&quot;
+                </motion.div>
               </h2>
-              {compatibility ? (
-                <>
-                  <p className="text-center text-gray-800">
-                    {compatibility.summary}
-                  </p>
-                  <div className="text-left mt-4 space-y-2 text-gray-700">
-                    <div>
-                      <strong>잘 맞는 부분:</strong> {compatibility.good}
-                    </div>
-                    <div>
-                      <strong>주의할 점:</strong> {compatibility.caution}
-                    </div>
-                    <div>
-                      <strong>조언:</strong> {compatibility.advice}
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <p className="text-center text-gray-500">
-                  궁합 정보를 찾을 수 없습니다.
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 2.7, duration: 0.5 }}
+                className="space-y-4"
+              >
+                <p className="text-center text-gray-800">
+                  {compatibility.summary}
                 </p>
-              )}
-            </div>
+                <div className="space-y-3 text-gray-700">
+                  <div className="p-3 bg-white/50 rounded-lg">
+                    <strong className="text-purple-600">잘 맞는 부분:</strong>{" "}
+                    {compatibility.good}
+                  </div>
+                  <div className="p-3 bg-white/50 rounded-lg">
+                    <strong className="text-purple-600">주의할 점:</strong>{" "}
+                    {compatibility.caution}
+                  </div>
+                  <div className="p-3 bg-white/50 rounded-lg">
+                    <strong className="text-purple-600">조언:</strong>{" "}
+                    {compatibility.advice}
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
           )}
 
-          {/* 공유 버튼 */}
-          <div className="mt-8 mb-4 text-center space-y-3">
-            <h3 className="text-xl font-bold text-purple-700">
-              친구들과 공유하기
-            </h3>
-            <p className="text-gray-600">
-              나와 친구들의 감정 성향 궁합을 확인해보세요!
-            </p>
-            <p className="text-sm text-gray-500">
-              카카오톡으로 공유하거나 링크를 복사해서 전달해보세요 ✨
-            </p>
-          </div>
-          <div className="text-center flex justify-center gap-2 m-0 mb-4">
-            {/* <KakaoShareButton onClick={handleShare} /> */}
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => {
-                if (!nickname) {
-                  openModal();
-                  return;
-                }
-                handleKakaoShare(nickname);
-              }}
-              className="rounded-full"
-            >
-              <Image
-                src="/icon_kakao.png"
-                alt="카카오톡 공유"
-                width={36}
-                height={36}
-                priority
-              />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => {
-                const uuid = localStorage.getItem("uuid") || "anonymous";
-                const shareUrl = `https://whoinside.vercel.app/?from=${uuid}&type=${
-                  result?.type
-                }&nickname=${encodeURIComponent(nickname)}`;
-                navigator.clipboard.writeText(shareUrl);
-              }}
-              className="rounded-full"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-              </svg>
-            </Button>
-          </div>
-          <p className="text-center flex justify-center m-0">
-            {uuid && (
-              <a
-                href={`/me/${uuid}`}
-                className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700"
-              >
-                <Users size={20} />
-                공유한 친구와 궁합 보기(링크 복사해두세요)
-              </a>
-            )}
-          </p>
+          {/* 공유 버튼 섹션 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 3, duration: 0.5 }}
+            className="mt-12 space-y-6"
+          >
+            <div className="relative">
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 3.2, duration: 0.5, type: "spring" }}
+                  className="bg-purple-600 text-white px-4 py-1 rounded-full text-sm font-medium shadow-lg"
+                >
+                  Share with friends! ✨
+                </motion.div>
+              </div>
+              <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-2xl p-8 space-y-4">
+                <div className="text-center space-y-3">
+                  <h3 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-800">
+                    친구들과 공유하기
+                  </h3>
+                  <div className="relative">
+                    <div className="relative">
+                      <p className="text-purple-600 font-medium bg-purple-50/80 px-6 py-3 rounded-xl inline-block shadow-sm">
+                        카카오톡이나 링크로 공유해보세요! ✨
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-center gap-6 mt-8">
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        if (!nickname) {
+                          openModal();
+                          return;
+                        }
+                        handleKakaoShare(nickname);
+                      }}
+                      className="relative bg-yellow-400 hover:bg-yellow-500 border-yellow-500 px-8 py-4 rounded-2xl group"
+                    >
+                      <div className="relative flex items-center gap-3">
+                        <Image
+                          src="/icon_kakao.png"
+                          alt="카카오톡 공유"
+                          width={40}
+                          height={40}
+                          className="transition-transform"
+                          priority
+                        />
+                        <span className="text-[#3A1D1D] font-medium">
+                          카카오톡 공유
+                        </span>
+                      </div>
+                    </Button>
+                  </motion.div>
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        const uuid =
+                          localStorage.getItem("uuid") || "anonymous";
+                        const shareUrl = `https://whoinside.vercel.app/?from=${uuid}&type=${
+                          result?.type
+                        }&nickname=${encodeURIComponent(nickname)}`;
+                        navigator.clipboard.writeText(shareUrl);
+
+                        // 복사 완료 토스트 메시지
+                        const toast = document.createElement("div");
+                        toast.className =
+                          "fixed top-4 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-lg z-[9999]";
+                        toast.textContent = "링크가 복사되었습니다";
+                        document.body.appendChild(toast);
+                        setTimeout(() => {
+                          toast.remove();
+                        }, 3000);
+                      }}
+                      className="relative bg-white hover:bg-purple-50 border-purple-200 px-8 py-4 rounded-2xl group"
+                    >
+                      <div className="relative flex items-center gap-3">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="40"
+                          height="40"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-purple-600"
+                        >
+                          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                        </svg>
+                        <span className="text-purple-600 font-medium">
+                          링크 복사
+                        </span>
+                      </div>
+                    </Button>
+                  </motion.div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
 
           {/* 다시 테스트하기와 이메일 입력 섹션 */}
-          <div className="mt-8 space-y-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 3.4, duration: 0.5 }}
+            className="mt-8 space-y-4"
+          >
             <ResultActions
               uuid={uuid}
               type={result?.type}
               nickname={nickname}
             />
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
+
       {showModal && (
         <NicknameModal
           isOpen={showModal}
@@ -401,14 +527,20 @@ export default function ResultPage() {
           isShared={!!fromInfo}
         />
       )}
-      {/* 로딩 오버레이 - z-index를 9999로 설정하여 최상단에 표시 */}
+
+      {/* 로딩 오버레이 */}
       {isLoading && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] backdrop-blur-sm"
+        >
           <div className="bg-white rounded-xl shadow-xl p-6 flex flex-col items-center gap-4 min-w-[200px]">
             <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
             <p className="text-gray-700 font-medium">처리중입니다...</p>
           </div>
-        </div>
+        </motion.div>
       )}
     </main>
   );

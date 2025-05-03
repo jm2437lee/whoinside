@@ -15,9 +15,18 @@ export default function QuizPage() {
   const currentStep = parseInt(qKey.replace("Q", ""));
 
   return (
-    <div className="px-4 py-6 max-w-xl mx-auto">
-      <ProgressBar step={currentStep} total={10} />
-      <QPage questionKey={qKey} />
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white px-4 py-12">
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8 space-y-8">
+          <div className="space-y-4">
+            <h1 className="text-center text-purple-900/80 text-lg font-medium">
+              Question {currentStep} of 10
+            </h1>
+            <ProgressBar step={currentStep} total={10} />
+          </div>
+          <QPage questionKey={qKey} />
+        </div>
+      </div>
     </div>
   );
 }

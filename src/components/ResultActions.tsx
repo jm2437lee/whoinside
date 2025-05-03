@@ -63,16 +63,9 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
 
   return (
     <div className="w-full flex flex-col gap-4 mt-10">
-      <button
-        onClick={() => (window.location.href = "/quiz/q1")}
-        className="w-full bg-gray-200 hover:bg-gray-300 text-black font-medium py-3 rounded-xl"
-      >
-        🔄 다시 테스트하기
-      </button>
-
       <div className="space-y-4 bg-purple-50 p-6 rounded-xl">
         <h3 className="text-lg font-semibold text-purple-700">
-          📩 자세한 리포트 받아보기
+          📩 공유한 친구와 궁합을 메일로 받아 보기
         </h3>
 
         <input
@@ -127,9 +120,15 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
           }`}
         >
-          {isSending ? "발송 중..." : "리포트 받기"}
+          {isSending ? "발송 중..." : "궁합 받아보기"}
         </button>
       </div>
+      <button
+        onClick={() => (window.location.href = "/quiz/q1")}
+        className="w-full bg-gray-200 hover:bg-gray-300 text-black font-medium py-3 rounded-xl"
+      >
+        🔄 다시 테스트하기
+      </button>
     </div>
   );
 }
