@@ -85,6 +85,14 @@ export function MyPageContent({
     const imageUrl =
       "https://k.kakaocdn.net/14/dn/btsNLud86iV/AGBAQzr2QTze43Zd46Z3Bk/o.jpg";
 
+    console.log("Sharing details:", {
+      domain: process.env.NEXT_PUBLIC_DOMAIN_URL,
+      uuid,
+      myType,
+      nickname,
+      fullUrl: shareUrl,
+    });
+
     try {
       window.Kakao.Share.sendDefault({
         objectType: "feed",

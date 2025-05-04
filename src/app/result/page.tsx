@@ -68,6 +68,18 @@ export default function ResultPage() {
     const imageUrl =
       "https://k.kakaocdn.net/14/dn/btsNLud86iV/AGBAQzr2QTze43Zd46Z3Bk/o.jpg";
 
+    console.log("Result page sharing details:", {
+      domain: process.env.NEXT_PUBLIC_DOMAIN_URL,
+      uuid,
+      type: result?.type,
+      nickname,
+      fullUrl: shareUrl,
+      localStorage:
+        typeof window !== "undefined"
+          ? Object.keys(localStorage)
+          : "not available",
+    });
+
     try {
       window.Kakao.Share.sendDefault({
         objectType: "feed",
@@ -231,11 +243,14 @@ export default function ResultPage() {
   // 컴포넌트 마운트 시 공유 여부 체크 및 초기 설정
   React.useEffect(() => {
     if (typeof window !== "undefined") {
-      // UUID 생성
-      const uuid = crypto.randomUUID();
-      localStorage.setItem("uuid", uuid);
+      // UUID 체크 - 없을 때만 새로 생성
+      const existingUuid = localStorage.getItem("uuid");
+      if (!existingUuid) {
+        const newUuid = crypto.randomUUID();
+        localStorage.setItem("uuid", newUuid);
+      }
 
-      // 결과 계산 및 설정
+      // 답변 체크
       const answers: string[] = [];
       for (let i = 1; i <= 10; i++) {
         const value = localStorage.getItem(`Q${i}`);
