@@ -74,6 +74,38 @@ export function MyPageContent({
     }, 3000);
   };
 
+  const handleKakaoShare = () => {
+    if (typeof window === "undefined" || !window.Kakao) {
+      console.error("Kakao SDK not loaded");
+      return;
+    }
+
+    const shareUrl = `${
+      process.env.NEXT_PUBLIC_DOMAIN_URL
+    }/?from=${uuid}&type=${myType}&nickname=${encodeURIComponent(nickname)}`;
+
+    try {
+      window.Kakao.Share.sendDefault({
+        objectType: "feed",
+        content: {
+          title: `나의 감정 성향, 궁금하지 않아? ${nickname}과의 궁합도 확인해봐`,
+          description: "나와 너의 감정 성향 우리 궁합은 얼마나 잘 맞을까? 👀",
+          imageUrl: `${process.env.NEXT_PUBLIC_DOMAIN_URL}/main.png`,
+          link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
+        },
+        buttons: [
+          {
+            title: "나도 테스트하러 가기",
+            link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
+          },
+        ],
+      });
+    } catch (error) {
+      console.error("Kakao share error:", error);
+      openToast("카카오톡 공유 중 오류가 발생했습니다");
+    }
+  };
+
   const handleShare = (type: "kakao" | "link" | "twitter" | "instagram") => {
     const shareUrl = `${
       process.env.NEXT_PUBLIC_DOMAIN_URL
@@ -81,29 +113,7 @@ export function MyPageContent({
 
     switch (type) {
       case "kakao":
-        if (typeof window !== "undefined" && window.Kakao) {
-          try {
-            window.Kakao.Share.sendDefault({
-              objectType: "feed",
-              content: {
-                title: `나의 감정 성향, 궁금하지 않아? ${nickname}과의 궁합도 확인해봐`,
-                description:
-                  "나와 너의 감정 성향 우리 궁합은 얼마나 잘 맞을까? 👀",
-                imageUrl: `${process.env.NEXT_PUBLIC_DOMAIN_URL}/main.png`,
-                link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
-              },
-              buttons: [
-                {
-                  title: "나도 테스트하러 가기",
-                  link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
-                },
-              ],
-            });
-          } catch (error) {
-            console.error("Kakao share error:", error);
-            openToast("카카오톡 공유 중 오류가 발생했습니다");
-          }
-        }
+        handleKakaoShare();
         break;
       case "link":
         navigator.clipboard.writeText(shareUrl);
