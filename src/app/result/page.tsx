@@ -67,6 +67,7 @@ export default function ResultPage() {
     )}`;
 
     try {
+      alert(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/main.png`);
       window.Kakao.Share.sendDefault({
         objectType: "feed",
         content: {
