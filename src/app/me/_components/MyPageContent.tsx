@@ -11,7 +11,7 @@ import Script from "next/script";
 interface MyPageContentProps {
   myType: string;
   nickname: string;
-  email: string;
+  email?: string | null;
   uuid: string;
   connections: {
     nickname: string;
