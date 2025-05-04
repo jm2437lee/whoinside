@@ -67,13 +67,12 @@ export default function ResultPage() {
     )}`;
 
     try {
-      alert(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/main.png`);
       window.Kakao.Share.sendDefault({
         objectType: "feed",
         content: {
           title: `나의 감정 성향, 궁금하지 않아? ${nickname}과의 궁합도 확인해봐`,
           description: "나와 너의 감정 성향 우리 궁합은 얼마나 잘 맞을까? 👀",
-          imageUrl: `${process.env.NEXT_PUBLIC_DOMAIN_URL}/main.png`,
+          imageUrl: `${process.env.NEXT_PUBLIC_DOMAIN_URL}/main.jpg`,
           link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
         },
         buttons: [
