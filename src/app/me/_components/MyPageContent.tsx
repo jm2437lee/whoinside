@@ -5,7 +5,7 @@ import compatibilityDescriptions from "@/data/compatibilityDescriptions.json";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface MyPageContentProps {
   myType: string;
@@ -26,6 +26,25 @@ export function MyPageContent({
   const [pendingShareType, setPendingShareType] = useState<
     "kakao" | "link" | "twitter" | "instagram" | null
   >(null);
+
+  useEffect(() => {
+    // Kakao SDK 스크립트 로드
+    const script = document.createElement("script");
+    script.src = "https://t1.kakaocdn.net/kakao_js_sdk/2.6.0/kakao.min.js";
+    script.async = true;
+    script.onload = () => {
+      // SDK 로드 완료 후 초기화
+      if (window.Kakao && !window.Kakao.isInitialized()) {
+        window.Kakao.init("47e9e842805216474700f75e72891072");
+      }
+    };
+    document.head.appendChild(script);
+
+    return () => {
+      // 컴포넌트 언마운트 시 스크립트 제거
+      document.head.removeChild(script);
+    };
+  }, []);
 
   // 궁합 정보 가져오기
   const getCompatibility = (myType: string, friendType: string) => {
