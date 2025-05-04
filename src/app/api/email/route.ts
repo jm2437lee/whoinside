@@ -3,7 +3,7 @@ import nodemailer from "nodemailer";
 
 export async function POST(req: Request) {
   try {
-    const { email, uuid } = await req.json();
+    const { email, uuid, fromNickname, myNickname } = await req.json();
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -16,16 +16,16 @@ export async function POST(req: Request) {
     const mailOptions = {
       from: `"Who Inside" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: "✨ 친구들과의 궁합 결과가 도착했어요!",
+      subject: `✨ ${fromNickname}님과의 궁합 결과가 도착했어요!`,
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
             <h1 style="color: #6B46C1; font-size: 24px; margin-bottom: 10px;">
-              ✨ 친구들과의 궁합 결과가 도착했어요!
+              ✨ ${fromNickname}님과 ${myNickname}님의 궁합 결과가 도착했어요!
             </h1>
             <p style="color: #4A5568; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
-              친구들과 나의 감정 성향이 얼마나 잘 맞는지<br/>
-              지금 바로 확인해보세요!
+              ${fromNickname}님과 ${myNickname}님의 감정 성향이<br/>
+              얼마나 잘 맞는지 지금 바로 확인해보세요!
             </p>
             <a 
               href="${process.env.NEXT_PUBLIC_DOMAIN_URL}/me/${uuid}" 
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
               궁합 결과 확인하기
             </a>
             <p style="color: #718096; font-size: 14px; margin-top: 30px; padding: 20px; background-color: #F7FAFC; border-radius: 8px;">
-              친구들과 함께 테스트에 참여하고<br/>
+              더 많은 친구들과 함께 테스트에 참여하고<br/>
               우리의 감정 궁합을 알아보세요! 💕
             </p>
           </div>

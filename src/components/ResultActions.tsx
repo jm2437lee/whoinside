@@ -45,25 +45,7 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
         throw new Error("사용자 정보 저장에 실패했습니다.");
       }
 
-      // 2. 이메일 발송
-      const emailResponse = await fetch("/api/email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          uuid,
-        }),
-      });
-
-      if (!emailResponse.ok) {
-        throw new Error("이메일 발송에 실패했습니다.");
-      }
-
-      alert(
-        "이메일이 발송되었습니다. 메일함을 확인해주세요!(스팸함 확인 필요)"
-      );
+      alert("이메일 주소가 저장되었습니다!");
     } catch (error) {
       console.error("Error:", error);
       alert("처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
@@ -121,7 +103,7 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
             : "bg-gray-300 text-gray-500 cursor-not-allowed"
         }`}
       >
-        {isSending ? "발송 중..." : "궁합 결과 페이지 받아보기"}
+        {isSending ? "저장 중..." : "궁합 결과 페이지 받아보기"}
       </button>
     </div>
   );

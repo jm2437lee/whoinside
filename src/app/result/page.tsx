@@ -200,20 +200,24 @@ export default function ResultPage() {
       await fetch("/api/user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uuid, nickname: nicknameInput, type }),
+        body: JSON.stringify({ uuid: myUuid, nickname: nicknameInput, type }),
       });
 
-      // 관계정보 저장
+      // 관계정보 저장 (닉네임도 함께 전달)
       if (from && myUuid) {
         await fetch("/api/relation", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ fromUuid: from, toUuid: myUuid }),
+          body: JSON.stringify({
+            fromUuid: from,
+            toUuid: myUuid,
+            myNickname: nicknameInput,
+          }),
         });
       }
 
       setNickname(nicknameInput);
-      localStorage.setItem("myNickname", nicknameInput); // 닉네임을 localStorage에 저장
+      localStorage.setItem("myNickname", nicknameInput);
       closeModal();
     } catch (error) {
       console.error("Error:", error);
