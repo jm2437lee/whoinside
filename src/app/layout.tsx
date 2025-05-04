@@ -4,6 +4,7 @@ import Script from "next/script"; // ✅ 이거 꼭 추가!
 import LocalStorageInitializer from "@/components/LocalStorageInitializer";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -60,6 +61,7 @@ export default function RootLayout({
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
+        <GoogleAnalytics />
       </head>
       <body className={inter.className}>
         <LocalStorageInitializer />
