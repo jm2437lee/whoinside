@@ -41,11 +41,16 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
         }),
       });
 
+      const data = await userResponse.json();
+
       if (!userResponse.ok) {
-        throw new Error("사용자 정보 저장에 실패했습니다.");
+        alert(data.message || "사용자 정보 저장에 실패했습니다.");
+        return;
       }
 
-      alert("이메일 주소가 저장되었습니다!");
+      alert(
+        "이메일이 성공적으로 저장되었습니다!\n결과 페이지 링크가 이메일로 발송되었습니다. (스팸함도 확인해주세요!)"
+      );
     } catch (error) {
       console.error("Error:", error);
       alert("처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");

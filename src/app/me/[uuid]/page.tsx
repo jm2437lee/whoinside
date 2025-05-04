@@ -49,6 +49,7 @@ export default async function MyPage({ params }: MyPageProps) {
     <MyPageContent
       myType={myInfo.type}
       nickname={myInfo.nickname}
+      email={myInfo.email}
       uuid={uuid}
       connections={connections}
     />

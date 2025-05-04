@@ -11,6 +11,7 @@ import Script from "next/script";
 interface MyPageContentProps {
   myType: string;
   nickname: string;
+  email: string;
   uuid: string;
   connections: {
     nickname: string;
@@ -28,6 +29,7 @@ export function MyPageContent({
   myType,
   nickname,
   uuid,
+  email,
   connections,
 }: MyPageContentProps) {
   const [pendingShareType, setPendingShareType] = useState<
@@ -84,6 +86,14 @@ export function MyPageContent({
     }/?from=${uuid}&type=${myType}&nickname=${encodeURIComponent(nickname)}`;
     const imageUrl =
       "https://k.kakaocdn.net/14/dn/btsNLud86iV/AGBAQzr2QTze43Zd46Z3Bk/o.jpg";
+
+    console.log("Sharing details:", {
+      domain: process.env.NEXT_PUBLIC_DOMAIN_URL,
+      uuid,
+      myType,
+      nickname,
+      fullUrl: shareUrl,
+    });
 
     try {
       window.Kakao.Share.sendDefault({
@@ -189,7 +199,7 @@ export function MyPageContent({
           >
             <Users size={24} />
             <h1 className="text-3xl font-bold text-center">
-              {nickname}님과 공유한 친구들과의 궁합
+              {nickname || email}님과 공유한 친구들과의 궁합
             </h1>
           </motion.div>
           {/* 공유 섹션 */}
