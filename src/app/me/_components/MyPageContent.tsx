@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import Script from "next/script";
 
 interface MyPageContentProps {
   myType: string;
@@ -15,6 +16,12 @@ interface MyPageContentProps {
     nickname: string;
     type: string;
   }[];
+}
+
+declare global {
+  interface Window {
+    Kakao: any;
+  }
 }
 
 export function MyPageContent({
@@ -28,20 +35,16 @@ export function MyPageContent({
   >(null);
 
   useEffect(() => {
-    // Kakao SDK 스크립트 로드
     const script = document.createElement("script");
-    script.src = "https://t1.kakaocdn.net/kakao_js_sdk/2.6.0/kakao.min.js";
+    script.src = "https://developers.kakao.com/sdk/js/kakao.js";
     script.async = true;
     script.onload = () => {
-      // SDK 로드 완료 후 초기화
       if (window.Kakao && !window.Kakao.isInitialized()) {
         window.Kakao.init("47e9e842805216474700f75e72891072");
       }
     };
     document.head.appendChild(script);
-
     return () => {
-      // 컴포넌트 언마운트 시 스크립트 제거
       document.head.removeChild(script);
     };
   }, []);
@@ -71,6 +74,38 @@ export function MyPageContent({
     }, 3000);
   };
 
+  const handleKakaoShare = () => {
+    if (typeof window === "undefined" || !window.Kakao) {
+      console.error("Kakao SDK not loaded");
+      return;
+    }
+
+    const shareUrl = `${
+      process.env.NEXT_PUBLIC_DOMAIN_URL
+    }/?from=${uuid}&type=${myType}&nickname=${encodeURIComponent(nickname)}`;
+
+    try {
+      window.Kakao.Share.sendDefault({
+        objectType: "feed",
+        content: {
+          title: `나의 감정 성향, 궁금하지 않아? ${nickname}과의 궁합도 확인해봐`,
+          description: "나와 너의 감정 성향 우리 궁합은 얼마나 잘 맞을까? 👀",
+          imageUrl: `${process.env.NEXT_PUBLIC_DOMAIN_URL}/main.png`,
+          link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
+        },
+        buttons: [
+          {
+            title: "나도 테스트하러 가기",
+            link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
+          },
+        ],
+      });
+    } catch (error) {
+      console.error("Kakao share error:", error);
+      openToast("카카오톡 공유 중 오류가 발생했습니다");
+    }
+  };
+
   const handleShare = (type: "kakao" | "link" | "twitter" | "instagram") => {
     const shareUrl = `${
       process.env.NEXT_PUBLIC_DOMAIN_URL
@@ -78,24 +113,7 @@ export function MyPageContent({
 
     switch (type) {
       case "kakao":
-        if (typeof window !== "undefined" && window.Kakao) {
-          window.Kakao.Share.sendDefault({
-            objectType: "feed",
-            content: {
-              title: `나의 감정 성향, 궁금하지 않아? ${nickname}과의 궁합도 확인해봐`,
-              description:
-                "나와 너의 감정 성향 우리 궁합은 얼마나 잘 맞을까? 👀",
-              imageUrl: `${process.env.NEXT_PUBLIC_DOMAIN_URL}/main.png`,
-              link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
-            },
-            buttons: [
-              {
-                title: "나도 테스트하러 가기",
-                link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
-              },
-            ],
-          });
-        }
+        handleKakaoShare();
         break;
       case "link":
         navigator.clipboard.writeText(shareUrl);
