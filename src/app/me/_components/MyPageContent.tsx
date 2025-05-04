@@ -82,7 +82,8 @@ export function MyPageContent({
     const shareUrl = `${
       process.env.NEXT_PUBLIC_DOMAIN_URL
     }/?from=${uuid}&type=${myType}&nickname=${encodeURIComponent(nickname)}`;
-    const imageUrl = `${process.env.NEXT_PUBLIC_DOMAIN_URL}/main.png`;
+    const imageUrl =
+      "https://k.kakaocdn.net/14/dn/btsNLud86iV/AGBAQzr2QTze43Zd46Z3Bk/o.jpg";
 
     try {
       window.Kakao.Share.sendDefault({
