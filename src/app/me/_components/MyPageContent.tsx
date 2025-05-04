@@ -85,40 +85,32 @@ export function MyPageContent({
     const imageUrl = `${process.env.NEXT_PUBLIC_DOMAIN_URL}/main.png`;
 
     try {
-      // 모바일 여부 체크
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-      if (!isMobile) {
-        // 데스크톱에서는 Web2App 방식 사용
-        window.Kakao.Share.sendScrap({
-          requestUrl: shareUrl,
-          templateId: 3139,
-          templateArgs: {
-            TITLE: `나의 감정 성향, 궁금하지 않아? ${nickname}과의 궁합도 확인해봐`,
-            DESCRIPTION: "나와 너의 감정 성향 우리 궁합은 얼마나 잘 맞을까? 👀",
-            IMAGE_URL: imageUrl,
-            WEB_URL: shareUrl,
-            MOBILE_WEB_URL: shareUrl,
+      window.Kakao.Share.sendDefault({
+        objectType: "feed",
+        content: {
+          title: `나의 감정 성향, 궁금하지 않아? ${nickname}과의 궁합도 확인해봐`,
+          description: "나와 너의 감정 성향 우리 궁합은 얼마나 잘 맞을까? 👀",
+          imageUrl: imageUrl,
+          link: {
+            mobileWebUrl: shareUrl,
+            webUrl: shareUrl,
           },
-        });
-      } else {
-        // 모바일에서는 기존 방식 유지
-        window.Kakao.Share.sendDefault({
-          objectType: "feed",
-          content: {
-            title: `나의 감정 성향, 궁금하지 않아? ${nickname}과의 궁합도 확인해봐`,
-            description: "나와 너의 감정 성향 우리 궁합은 얼마나 잘 맞을까? 👀",
-            imageUrl: imageUrl,
-            link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
-          },
-          buttons: [
-            {
-              title: "나도 테스트하러 가기",
-              link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
+        },
+        buttons: [
+          {
+            title: "나도 테스트하러 가기",
+            link: {
+              mobileWebUrl: shareUrl,
+              webUrl: shareUrl,
             },
-          ],
-        });
-      }
+          },
+        ],
+        serverCallbackArgs: {
+          // 서버 콜백 시 추가로 전달하고 싶은 파라미터가 있다면 여기에 추가
+          userType: myType,
+          userName: nickname,
+        },
+      });
     } catch (error: unknown) {
       console.error("Kakao share error:", error);
       if (error instanceof Error) {
