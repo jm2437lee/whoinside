@@ -93,7 +93,7 @@ export default function PrivacyPolicy() {
 
           <section>
             <h2 className="text-xl font-semibold text-purple-700 mb-3">
-              6. 개인정보 보호책임자
+              6.개인정보 보호책임자
             </h2>
             <p className="leading-relaxed">
               회사는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보
