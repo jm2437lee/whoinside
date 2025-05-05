@@ -1,7 +1,8 @@
 "use client";
 
-import { Users } from "lucide-react";
+import { Users, Sparkles, Brain, Heart } from "lucide-react";
 import compatibilityDescriptions from "@/data/compatibilityDescriptions.json";
+import typeDescriptions from "@/data/typeDescriptions.json";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -55,6 +56,10 @@ export function MyPageContent({
       ]
     );
   };
+
+  // 내 타입 정보 가져오기
+  const myTypeInfo = typeDescriptions[myType as keyof typeof typeDescriptions];
+  const freeReport = myTypeInfo?.freeReport;
 
   const openToast = (text: string) => {
     const toast = document.createElement("div");
@@ -190,6 +195,95 @@ export function MyPageContent({
       />
       <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white py-10 px-6">
         <div className="max-w-3xl mx-auto space-y-8">
+          {/* 무료 리포트 섹션 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="bg-white rounded-xl shadow-md border border-purple-100 overflow-hidden"
+          >
+            <div className="p-6 border-b border-purple-100">
+              <div className="flex items-center justify-center gap-2 text-purple-600 mb-4">
+                <Sparkles size={24} />
+                <h1 className="text-2xl font-bold">나의 감정 성향 리포트</h1>
+              </div>
+              <p className="text-center text-gray-600">
+                {nickname || email}님의 감정 유형:{" "}
+                <span className="font-bold text-purple-600">
+                  {myTypeInfo.nickname}
+                </span>
+              </p>
+            </div>
+
+            {freeReport && (
+              <div className="p-6 space-y-6">
+                {/* 감정 스타일 */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2, duration: 0.5 }}
+                  className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6"
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <Brain className="text-purple-600" size={20} />
+                    <h3 className="text-lg font-semibold text-purple-700">
+                      감정 스타일
+                    </h3>
+                  </div>
+                  <p className="text-gray-700 leading-relaxed">
+                    {freeReport.emotionalStyle}
+                  </p>
+                </motion.div>
+
+                {/* 강점 */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3, duration: 0.5 }}
+                  className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6"
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <Heart className="text-green-600" size={20} />
+                    <h3 className="text-lg font-semibold text-green-700">
+                      나의 강점
+                    </h3>
+                  </div>
+                  <ul className="space-y-2">
+                    {freeReport.strengthPoints.map(
+                      (point: string, index: number) => (
+                        <li
+                          key={index}
+                          className="flex items-center gap-2 text-gray-700"
+                        >
+                          <span className="text-green-500">✦</span>
+                          {point}
+                        </li>
+                      )
+                    )}
+                  </ul>
+                </motion.div>
+
+                {/* 일상 패턴 */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4, duration: 0.5 }}
+                  className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6"
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <Users className="text-blue-600" size={20} />
+                    <h3 className="text-lg font-semibold text-blue-700">
+                      일상 속 나의 모습
+                    </h3>
+                  </div>
+                  <p className="text-gray-700 leading-relaxed">
+                    {freeReport.dailyPattern}
+                  </p>
+                </motion.div>
+              </div>
+            )}
+          </motion.div>
+
           {/* 기존 궁합 섹션 */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

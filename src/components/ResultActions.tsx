@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 interface ResultActionsProps {
   uuid: string | null;
@@ -62,39 +63,41 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <input
-          type="email"
-          placeholder="이메일 주소를 입력해주세요"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-        />
-
-        <div className="flex items-start gap-2 mt-4">
+        <div className="relative">
           <input
-            type="checkbox"
-            id="privacy"
-            checked={isAgreed}
-            onChange={(e) => setIsAgreed(e.target.checked)}
-            className="mt-1"
+            type="email"
+            placeholder="이메일 주소 입력하고 특별 혜택 받기"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-4 py-3 border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 pr-[120px]"
           />
-          <div className="space-y-1">
-            <label
-              htmlFor="privacy"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              [필수] 개인정보 수집 및 이용에 동의합니다.
-            </label>
-            <p className="text-xs text-gray-500 mt-2">
-              <a
-                href="/privacy"
-                target="_blank"
-                className="underline hover:text-gray-700"
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
+            <label className="inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isAgreed}
+                onChange={(e) => setIsAgreed(e.target.checked)}
+                className="sr-only"
+              />
+              <div
+                className={`w-4 h-4 border rounded ${
+                  isAgreed
+                    ? "bg-purple-500 border-purple-500"
+                    : "border-gray-300"
+                } flex items-center justify-center`}
               >
-                개인정보처리방침
-              </a>
-              에 동의하고 이메일을 입력합니다.
-            </p>
+                {isAgreed && <span className="text-white text-xs">✓</span>}
+              </div>
+              <span className="ml-1 text-xs text-gray-600">
+                <a
+                  href="/privacy"
+                  target="_blank"
+                  className="underline hover:text-purple-600"
+                >
+                  개인정보 동의
+                </a>
+              </span>
+            </label>
           </div>
         </div>
       </div>
@@ -108,7 +111,7 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
             : "bg-gray-300 text-gray-500 cursor-not-allowed"
         }`}
       >
-        {isSending ? "저장 중..." : "궁합 결과 페이지 받아보기"}
+        {isSending ? "처리 중..." : "특별 리포트 받기"}
       </button>
     </div>
   );

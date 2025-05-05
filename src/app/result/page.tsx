@@ -43,6 +43,7 @@ export default function ResultPage() {
   const [nickname, setNickname] = React.useState("");
   const [relationSaved, setRelationSaved] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [userCount, setUserCount] = React.useState(0);
   const [pendingShareType, setPendingShareType] = React.useState<
     "kakao" | "link" | "twitter" | "instagram" | null
   >(null);
@@ -242,7 +243,20 @@ export default function ResultPage() {
 
   // 컴포넌트 마운트 시 공유 여부 체크 및 초기 설정
   React.useEffect(() => {
+    const fetchUserCount = async () => {
+      try {
+        const response = await fetch("/api/users/count");
+        const data = await response.json();
+        if (data.success) {
+          setUserCount(Math.floor(data.count));
+        }
+      } catch (error) {
+        console.error("Error fetching user count:", error);
+      }
+    };
+
     if (typeof window !== "undefined") {
+      fetchUserCount();
       // UUID 체크 - 없을 때만 새로 생성
       const existingUuid = localStorage.getItem("uuid");
       if (!existingUuid) {
@@ -522,19 +536,55 @@ export default function ResultPage() {
           >
             <div className="text-center space-y-6">
               <div className="space-y-3">
+                <div className="bg-purple-50 rounded-lg p-2 inline-block mx-auto">
+                  <p className="text-sm font-medium text-purple-700">
+                    🎉 현재{" "}
+                    <span className="text-lg font-bold text-purple-600">
+                      {userCount}명
+                    </span>
+                    이 리포트를 받아보았어요!
+                  </p>
+                </div>
                 <h3 className="text-xl font-bold text-purple-700">
-                  🤔 감정을 공유할 친구들과의 궁합이 궁금하다면?
+                  나만의 특별한 분석 리포트 받기 🎁
                 </h3>
-                <p className="text-gray-600">
-                  이메일을 남기고 친구들과 테스트 결과를 공유하세요!
-                  <br />
-                  <span className="text-purple-600 font-medium">
-                    친구가 테스트에 참여할 때마다
-                  </span>{" "}
-                  궁합 결과를 보내드려요
-                  <br />
-                  (스팸함을 꼭 확인해주세요!)
-                </p>
+                <div className="max-w-md mx-auto">
+                  <div className="bg-white rounded-xl p-4 shadow-sm space-y-3 mb-4">
+                    <p className="font-medium text-purple-700">
+                      지금 바로 받는 특별 혜택
+                    </p>
+                    <div className="space-y-2 text-left">
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <span className="text-purple-500">✨</span>
+                        <span>나의 감정 유형 상세 해석</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <span className="text-purple-500">📊</span>
+                        <span>전체 사용자 통계 속 내 성향 (Beta)</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 shadow-sm space-y-3">
+                    <p className="font-medium text-purple-700">
+                      친구가 참여할 때마다
+                    </p>
+                    <div className="space-y-2 text-left">
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <span className="text-purple-500">💝</span>
+                        <span>실시간 궁합 알림</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <span className="text-purple-500">⭐️</span>
+                        <span>친구와의 상성 분석</span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* <div className="mt-4 bg-yellow-50 rounded-lg p-2">
+                    <p className="text-sm text-yellow-700">
+                      ⚡️ 프리미엄 기능 출시 전 얼리버드 할인 혜택!
+                    </p>
+                  </div> */}
+                </div>
               </div>
             </div>
             <ResultActions
