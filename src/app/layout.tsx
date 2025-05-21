@@ -5,6 +5,7 @@ import LocalStorageInitializer from "@/components/LocalStorageInitializer";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
+import { GoogleAdsense } from "@/components/GoogleAdsense";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -65,7 +66,11 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <LocalStorageInitializer />
+        {/* 상단 AdSense 광고 */}
+        <GoogleAdsense />
         {children}
+        {/* 하단 AdSense 광고 */}
+        <GoogleAdsense />
       </body>
     </html>
   );
