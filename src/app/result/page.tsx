@@ -546,21 +546,27 @@ export default function ResultPage() {
                   </p>
                 </div>
                 <h3 className="text-xl font-bold text-purple-700">
-                  나만의 특별한 분석 리포트 받기 🎁
+                  이메일 입력 후 리포트 즉시 받기 🎁
                 </h3>
                 <div className="max-w-md mx-auto">
                   <div className="bg-white rounded-xl p-4 shadow-sm space-y-3 mb-4">
                     <p className="font-medium text-purple-700">
-                      지금 바로 받는 특별 혜택
+                      지금 당신에게 딱 맞는 심화 리포트가 준비됐어요!
                     </p>
                     <div className="space-y-2 text-left">
                       <div className="flex items-center gap-2 text-gray-700">
                         <span className="text-purple-500">✨</span>
-                        <span>나의 감정 유형 상세 해석</span>
+                        <span>지금 입력하면 즉시 PDF 다운로드 가능!</span>
                       </div>
                       <div className="flex items-center gap-2 text-gray-700">
                         <span className="text-purple-500">📊</span>
-                        <span>전체 사용자 통계 속 내 성향 (Beta)</span>
+                        <span>
+                          "당신과 잘 맞는 유형은 누구?" 상성 분석 포함
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <span className="text-purple-500">📊</span>
+                        <span>내 유형의 감정 대응법과 관계 팁 5가지</span>
                       </div>
                     </div>
                   </div>

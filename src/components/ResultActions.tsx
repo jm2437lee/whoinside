@@ -66,7 +66,7 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
         <div className="relative">
           <input
             type="email"
-            placeholder="이메일 주소 입력하고 특별 혜택 받기"
+            placeholder="이메일 입력 후 리포트 즉시 받기"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full px-4 py-3 border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 pr-[120px]"
