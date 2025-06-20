@@ -561,7 +561,7 @@ export default function ResultPage() {
                       <div className="flex items-center gap-2 text-gray-700">
                         <span className="text-purple-500">📊</span>
                         <span>
-                          "당신과 잘 맞는 유형은 누구?" 상성 분석 포함
+                          &quot;당신과 잘 맞는 유형은 누구?&quot; 상성 분석 포함
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-gray-700">
