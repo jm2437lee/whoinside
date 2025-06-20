@@ -9,8 +9,18 @@ declare global {
   }
 }
 
-export const GoogleAdsense = () => {
+interface GoogleAdsenseProps {
+  loadScript?: boolean; // 스크립트 로드 여부를 제어
+}
+
+export const GoogleAdsense = ({ loadScript = false }: GoogleAdsenseProps) => {
   useEffect(() => {
+    // 개발 환경에서는 AdSense 초기화하지 않음
+    if (process.env.NODE_ENV === "development") {
+      console.log("AdSense disabled in development environment");
+      return;
+    }
+
     // 광고 초기화
     const initAds = () => {
       try {
@@ -27,23 +37,30 @@ export const GoogleAdsense = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // 개발 환경에서는 플레이스홀더 표시
+  if (process.env.NODE_ENV === "development") {
+    return (
+      <div className="w-full my-4 flex justify-center">
+        <div
+          className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-gray-500 text-sm"
+          style={{ minHeight: "250px", width: "100%" }}
+        >
+          [AdSense 광고 영역 - 개발 모드]
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
-      <Script
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8283413819468215"
-        strategy="afterInteractive"
-        crossOrigin="anonymous"
-      />
-      {/* <div className="w-full my-4 flex justify-center">
-        <ins
-          className="adsbygoogle"
-          style={{ display: "block", minHeight: "250px", width: "100%" }}
-          data-ad-client="ca-pub-8283413819468215"
-          data-ad-slot="9339664314"
-          data-ad-format="auto"
-          data-full-width-responsive="true"
+      {/* 스크립트는 한 번만 로드되도록 제어 */}
+      {loadScript && (
+        <Script
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8283413819468215"
+          strategy="afterInteractive"
+          crossOrigin="anonymous"
         />
-      </div> */}
+      )}
     </>
   );
 };

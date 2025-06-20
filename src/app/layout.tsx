@@ -67,7 +67,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <LocalStorageInitializer />
         {/* 상단 AdSense 광고 */}
-        <GoogleAdsense />
+        <GoogleAdsense loadScript={true} />
         {children}
         {/* 하단 AdSense 광고 */}
         <GoogleAdsense />
