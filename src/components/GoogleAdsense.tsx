@@ -5,7 +5,7 @@ import Script from "next/script";
 declare global {
   interface Window {
     adsbygoogle: any[];
-    adsenseInitialized?: boolean;
+    adsenseAutoAdsInitialized?: boolean;
   }
 }
 
@@ -22,17 +22,19 @@ export const GoogleAdsense = ({ loadScript = false }: GoogleAdsenseProps) => {
           strategy="afterInteractive"
           crossOrigin="anonymous"
           onLoad={() => {
-            // 중복 초기화 방지
-            if (typeof window !== "undefined" && !window.adsenseInitialized) {
+            // 전역 체크로 중복 방지
+            if (
+              typeof window !== "undefined" &&
+              !window.adsenseAutoAdsInitialized
+            ) {
               try {
-                // Auto Ads 활성화
-                (window.adsbygoogle = window.adsbygoogle || []).push({
-                  google_ad_client: "ca-pub-8283413819468215",
-                  enable_page_level_ads: true,
-                });
-                window.adsenseInitialized = true;
+                // AdSense 배열 초기화 (Auto Ads는 AdSense 대시보드에서 설정)
+                window.adsbygoogle = window.adsbygoogle || [];
+                window.adsbygoogle.push({});
+                window.adsenseAutoAdsInitialized = true;
+                console.log("AdSense initialized successfully");
               } catch (error) {
-                console.error("Auto Ads initialization error:", error);
+                console.error("AdSense initialization error:", error);
               }
             }
           }}
