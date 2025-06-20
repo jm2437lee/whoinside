@@ -58,27 +58,37 @@ export default function RootLayout({
           strategy="beforeInteractive"
           crossOrigin="anonymous"
         />
-        {/* Google AdSense */}
-        <Script
+        {/* Google AdSense - 일반 HTML script 태그 사용 */}
+        <script
+          async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8283413819468215"
-          strategy="afterInteractive"
           crossOrigin="anonymous"
+        ></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // 페이지 로드 완료 후 AdSense 초기화
+              window.addEventListener('load', function() {
+                // 기존 AdSense 요소 완전 제거
+                const existingAds = document.querySelectorAll('ins.adsbygoogle');
+                existingAds.forEach(ad => ad.remove());
+                
+                // adsbygoogle 배열 초기화
+                if (typeof window.adsbygoogle === 'undefined') {
+                  window.adsbygoogle = [];
+                }
+                
+                // AdSense Auto Ads 활성화
+                try {
+                  window.adsbygoogle.push({});
+                  console.log('AdSense initialized successfully');
+                } catch (error) {
+                  console.error('AdSense initialization error:', error);
+                }
+              });
+            `,
+          }}
         />
-        {/* AdSense 초기화 */}
-        <Script id="adsense-init" strategy="afterInteractive">
-          {`
-            // DOM에서 기존 adsbygoogle 요소 제거 (충돌 방지)
-            const existingAds = document.querySelectorAll('ins.adsbygoogle');
-            existingAds.forEach(ad => {
-              if (ad.getAttribute('data-adsbygoogle-status')) {
-                ad.remove();
-              }
-            });
-            
-            // AdSense 초기화
-            (adsbygoogle = window.adsbygoogle || []).push({});
-          `}
-        </Script>
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
