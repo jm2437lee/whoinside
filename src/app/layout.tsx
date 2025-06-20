@@ -67,6 +67,15 @@ export default function RootLayout({
         {/* AdSense 초기화 */}
         <Script id="adsense-init" strategy="afterInteractive">
           {`
+            // DOM에서 기존 adsbygoogle 요소 제거 (충돌 방지)
+            const existingAds = document.querySelectorAll('ins.adsbygoogle');
+            existingAds.forEach(ad => {
+              if (ad.getAttribute('data-adsbygoogle-status')) {
+                ad.remove();
+              }
+            });
+            
+            // AdSense 초기화
             (adsbygoogle = window.adsbygoogle || []).push({});
           `}
         </Script>
