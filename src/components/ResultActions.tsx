@@ -15,6 +15,8 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
   const [email, setEmail] = useState("");
   const [isAgreed, setIsAgreed] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [resultUrl, setResultUrl] = useState("");
 
   const validateEmail = (email: string) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -49,9 +51,11 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
         return;
       }
 
-      alert(
-        "이메일이 성공적으로 저장되었습니다!\n결과 페이지 링크가 이메일로 발송되었습니다. (스팸함도 확인해주세요!)"
-      );
+      // 성공 상태로 변경하고 결과 URL 저장
+      setIsSuccess(true);
+      if (data.resultUrl) {
+        setResultUrl(data.resultUrl);
+      }
     } catch (error) {
       console.error("Error:", error);
       alert("처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
@@ -59,6 +63,40 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
       setIsSending(false);
     }
   };
+
+  // 성공 시 마이페이지 이동 UI 표시
+  if (isSuccess) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="space-y-4"
+      >
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
+          <div className="text-green-600 text-lg font-semibold mb-2">
+            ✅ 이메일이 성공적으로 저장되었습니다!
+          </div>
+          <p className="text-green-700 text-sm mb-4">
+            결과 페이지 링크가 이메일로 발송되었습니다.
+            <br />
+            (스팸함도 확인해주세요!)
+          </p>
+          {resultUrl && (
+            <Link href={resultUrl}>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-3 rounded-xl transition-colors"
+              >
+                📄 마이페이지로 바로가기
+              </motion.button>
+            </Link>
+          )}
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <div className="space-y-4">

@@ -117,12 +117,27 @@ export async function PUT(request: Request) {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      try {
+        await transporter.sendMail(mailOptions);
+        console.log(`이메일 전송 성공: ${email}`);
 
-      return NextResponse.json({
-        success: true,
-        message: "이메일이 성공적으로 저장되었습니다.",
-      });
+        return NextResponse.json({
+          success: true,
+          message: "이메일이 성공적으로 저장되고 발송되었습니다.",
+          emailSent: true,
+          resultUrl: `${process.env.NEXT_PUBLIC_DOMAIN_URL}/me/${uuid}`,
+        });
+      } catch (emailError: any) {
+        console.error("이메일 전송 실패:", emailError);
+
+        // 이메일 전송 실패해도 DB 저장은 성공했으므로 결과 URL 제공
+        return NextResponse.json({
+          success: true,
+          message: "이메일이 저장되었지만 발송에 실패했습니다.",
+          emailSent: false,
+          resultUrl: `${process.env.NEXT_PUBLIC_DOMAIN_URL}/me/${uuid}`,
+        });
+      }
     } catch (dbError: any) {
       // MySQL unique constraint violation error code
       if (dbError.code === "ER_DUP_ENTRY") {
