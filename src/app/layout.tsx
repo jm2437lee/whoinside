@@ -5,7 +5,6 @@ import LocalStorageInitializer from "@/components/LocalStorageInitializer";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
-import { GoogleAdsense } from "@/components/GoogleAdsense";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -59,6 +58,12 @@ export default function RootLayout({
           strategy="beforeInteractive"
           crossOrigin="anonymous"
         />
+        {/* Google AdSense */}
+        <Script
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8283413819468215"
+          strategy="afterInteractive"
+          crossOrigin="anonymous"
+        />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
@@ -66,8 +71,6 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <LocalStorageInitializer />
-        {/* AdSense Auto Ads 활성화 */}
-        <GoogleAdsense loadScript={true} />
         {children}
       </body>
     </html>
