@@ -70,6 +70,10 @@ export default function LandingPage() {
               transition={{ delay: 0.6, duration: 0.6 }}
               className="text-lg md:text-xl text-purple-700 mt-4"
             >
+              <span className="text-green-700 block">
+                나는 왜 이렇게 휘둘릴까?
+              </span>
+              <br />
               10가지 질문으로 알아보는 당신의 감정 성향
             </motion.p>
           </motion.div>
