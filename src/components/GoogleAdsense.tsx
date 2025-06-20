@@ -34,7 +34,7 @@ export const GoogleAdsense = () => {
         strategy="afterInteractive"
         crossOrigin="anonymous"
       />
-      <div className="w-full my-4 flex justify-center">
+      {/* <div className="w-full my-4 flex justify-center">
         <ins
           className="adsbygoogle"
           style={{ display: "block", minHeight: "250px", width: "100%" }}
@@ -43,7 +43,7 @@ export const GoogleAdsense = () => {
           data-ad-format="auto"
           data-full-width-responsive="true"
         />
-      </div>
+      </div> */}
     </>
   );
 };
