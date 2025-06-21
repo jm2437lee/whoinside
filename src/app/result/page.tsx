@@ -19,6 +19,8 @@ import { Suspense } from "react";
 import { SearchParamsHandler } from "@/components/SearchParamsHandler";
 import Head from "next/head";
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { Copy, Check } from "lucide-react";
 
 const reactionGifs: Record<string, { img: string }> = {
   A1: { img: "/gifs/a1.png" },
@@ -30,6 +32,166 @@ const reactionGifs: Record<string, { img: string }> = {
   D1: { img: "/gifs/d1.png" },
   D2: { img: "/gifs/d2.png" },
 };
+
+// 기존 이미지를 표시하되 길게 누르면 카드 이미지를 다운로드하는 컴포넌트
+function ImageWithCardDownload({
+  originalImageSrc,
+  type,
+  nickname,
+}: {
+  originalImageSrc: string;
+  type: string;
+  nickname: string;
+}) {
+  const [isPressed, setIsPressed] = React.useState(false);
+  const [pressTimer, setPressTimer] = React.useState<NodeJS.Timeout | null>(
+    null
+  );
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  const cardImageUrl = `/card-images/${type.toLowerCase()}.png`;
+
+  React.useEffect(() => {
+    // 모바일 디바이스 감지
+    const checkMobile = () => {
+      const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(
+        navigator.userAgent
+      );
+      setIsMobile(isMobileDevice);
+    };
+
+    checkMobile();
+  }, []);
+
+  const openToast = (text: string) => {
+    const toast = document.createElement("div");
+    toast.className =
+      "fixed top-4 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-lg z-[9999]";
+    toast.textContent = text;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  };
+
+  const downloadCardImage = () => {
+    try {
+      // 먼저 직접 다운로드 시도
+      const link = document.createElement("a");
+      link.href = cardImageUrl;
+      link.download = `${nickname}_감정성향카드.png`;
+
+      // 사용자 제스처 컨텍스트에서 실행
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      openToast("카드 이미지 다운로드를 시작합니다! 📌");
+    } catch (error) {
+      console.error("Direct download failed:", error);
+
+      // 폴백: 새 창에서 열기
+      try {
+        const newWindow = window.open(cardImageUrl, "_blank");
+        if (newWindow) {
+          newWindow.focus();
+          openToast("새 창에서 이미지를 우클릭하여 저장해주세요! 📌");
+        } else {
+          // 팝업 차단된 경우
+          openToast(
+            "브라우저에서 팝업이 차단되었습니다. 팝업을 허용하거나 직접 카드 이미지를 우클릭하여 저장해주세요."
+          );
+        }
+      } catch (fallbackError) {
+        console.error("Fallback failed:", fallbackError);
+        openToast("다운로드에 실패했습니다. 새로고침 후 다시 시도해주세요.");
+      }
+    }
+  };
+
+  const handleTouchStart = () => {
+    setIsPressed(true);
+    const timer = setTimeout(() => {
+      downloadCardImage();
+      setIsPressed(false);
+    }, 800); // 0.8초 길게 누르기
+    setPressTimer(timer);
+  };
+
+  const handleTouchEnd = () => {
+    setIsPressed(false);
+    if (pressTimer) {
+      clearTimeout(pressTimer);
+      setPressTimer(null);
+    }
+  };
+
+  const handleMouseDown = () => {
+    if (isMobile) {
+      // 모바일에서는 길게 누르기
+      setIsPressed(true);
+      const timer = setTimeout(() => {
+        downloadCardImage();
+        setIsPressed(false);
+      }, 800); // 0.8초 길게 누르기
+      setPressTimer(timer);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsPressed(false);
+    if (pressTimer) {
+      clearTimeout(pressTimer);
+      setPressTimer(null);
+    }
+  };
+
+  const handleClick = () => {
+    if (!isMobile) {
+      // 웹에서는 클릭으로 바로 다운로드
+      downloadCardImage();
+    }
+  };
+
+  return (
+    <div className="relative">
+      <Image
+        src={originalImageSrc}
+        alt="성향 반응 이미지"
+        width={300}
+        height={300}
+        className={`relative rounded-xl shadow-lg hover:scale-105 transition-all duration-300 select-none cursor-pointer ${
+          isPressed ? "scale-95 brightness-90" : ""
+        }`}
+        priority
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onClick={handleClick}
+        draggable={false}
+      />
+
+      {/* 오버레이 텍스트 */}
+      <div className="absolute left-0 right-0 bottom-3 left-1/2 -translate-x-1/2 bg-black/70 text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-lg backdrop-blur-sm w-full">
+        📌{" "}
+        {isMobile
+          ? "이미지를 길게 눌러 저장하고 공유해보세요"
+          : "이미지를 클릭해서 저장하고 공유해보세요"}
+      </div>
+
+      {/* 길게 누르기 인디케이터 */}
+      {isPressed && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-xl">
+          <div className="bg-white/90 rounded-full p-3 shadow-lg">
+            <div className="w-6 h-6 border-3 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function ResultPage() {
   const [result, setResult] = React.useState<any>(null);
@@ -44,9 +206,7 @@ export default function ResultPage() {
   const [relationSaved, setRelationSaved] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const [userCount, setUserCount] = React.useState(0);
-  const [pendingShareType, setPendingShareType] = React.useState<
-    "kakao" | "link" | "twitter" | "instagram" | null
-  >(null);
+  const [isCopied, setIsCopied] = React.useState(false);
 
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
@@ -113,26 +273,18 @@ export default function ResultPage() {
     }, 3000);
   };
 
-  const handleShare = (
-    type: "kakao" | "link" | "twitter" | "instagram",
-    forceNickname?: string
-  ) => {
-    const currentNickname = forceNickname || nickname;
-    if (!currentNickname) {
-      setShowModal(true);
-      return;
-    }
-
+  const handleShare = (type: "kakao" | "link" | "twitter" | "instagram") => {
+    // 닉네임이 이미 설정되어 있다고 가정 (페이지 로드시 받음)
     const uuid = localStorage.getItem("uuid") || "anonymous";
     const shareUrl = `${
       process.env.NEXT_PUBLIC_DOMAIN_URL
     }/?from=${uuid}&type=${result?.type}&nickname=${encodeURIComponent(
-      currentNickname
+      nickname
     )}`;
 
     switch (type) {
       case "kakao":
-        handleKakaoShare(currentNickname);
+        handleKakaoShare(nickname);
         break;
       case "link":
         navigator.clipboard.writeText(shareUrl);
@@ -175,35 +327,7 @@ export default function ResultPage() {
     }
   };
 
-  // 1. 공유받지 않은 경우의 공유버튼 클릭 -> 닉네임 입력 -> 유저정보 저장 -> 각 플랫폼별 공유
-  const confirmNicknameAndShare = async (
-    nicknameInput: string,
-    shareType: "kakao" | "link" | "twitter" | "instagram"
-  ) => {
-    const type = result?.type;
-    setIsLoading(true);
-    try {
-      // 유저정보만 저장
-      await fetch("/api/user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uuid, nickname: nicknameInput, type }),
-      });
-
-      setNickname(nicknameInput);
-      localStorage.setItem("myNickname", nicknameInput); // 닉네임을 localStorage에 저장
-      closeModal();
-
-      // 각 플랫폼별 공유 로직 실행
-      handleShare(shareType, nicknameInput);
-    } catch (error) {
-      console.error("Error saving user:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // 2. 공유받은 경우의 닉네임 입력 -> 유저정보 저장 + 관계정보 저장
+  // 닉네임 입력 완료 시 사용자 정보 저장
   const confirmNickname = async (nicknameInput: string) => {
     const type = result?.type;
     const from = localStorage.getItem("from");
@@ -211,14 +335,14 @@ export default function ResultPage() {
 
     setIsLoading(true);
     try {
-      // 유저정보 저장
+      // 유저정보 저장 (항상 실행)
       await fetch("/api/user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ uuid: myUuid, nickname: nicknameInput, type }),
       });
 
-      // 관계정보 저장 (닉네임도 함께 전달)
+      // 공유받은 경우에만 관계정보 저장
       if (from && myUuid) {
         await fetch("/api/relation", {
           method: "POST",
@@ -238,6 +362,59 @@ export default function ResultPage() {
       console.error("Error:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const copyUrl = async () => {
+    const myPageUrl = `${process.env.NEXT_PUBLIC_DOMAIN_URL || ""}/me/${uuid}`;
+
+    // 1차 시도: Modern Clipboard API
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(myPageUrl);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+        return;
+      } catch (err) {
+        console.warn("Clipboard API failed, trying fallback method:", err);
+      }
+    }
+
+    // 2차 시도: 텍스트 선택 방식 (모바일 호환)
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = myPageUrl;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      const result = document.execCommand("copy");
+      document.body.removeChild(textArea);
+
+      if (result) {
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+        return;
+      }
+    } catch (err) {
+      console.warn("Fallback copy method failed:", err);
+    }
+
+    // 3차 시도: 모바일에서 텍스트 선택 후 사용자가 복사하도록 안내
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+      const result = prompt("아래 URL을 길게 누르고 복사해주세요:", myPageUrl);
+      if (result === null) {
+        // 사용자가 취소하지 않았다면 복사된 것으로 간주
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      }
+    } else {
+      // 데스크톱에서는 alert로 URL 제공
+      alert(`URL 복사에 실패했습니다. 직접 복사해주세요:\n${myPageUrl}`);
     }
   };
 
@@ -278,12 +455,26 @@ export default function ResultPage() {
     }
   }, []);
 
+  // 결과 로드 후 닉네임 처리
+  React.useEffect(() => {
+    if (result && typeof window !== "undefined") {
+      const savedNickname = localStorage.getItem("myNickname");
+
+      if (savedNickname) {
+        // 이미 저장된 닉네임이 있으면 설정
+        setNickname(savedNickname);
+      } else {
+        // 닉네임이 없으면 바로 모달 표시
+        setShowModal(true);
+      }
+    }
+  }, [result]);
+
   // 공유받은 경우 fromInfo 설정
   React.useEffect(() => {
     const from = localStorage.getItem("from");
     const fromType = localStorage.getItem("fromType");
     const fromNickname = localStorage.getItem("fromNickname");
-    const savedNickname = localStorage.getItem("myNickname"); // 저장된 닉네임 확인
 
     if (from && fromType && fromNickname && result) {
       setFromInfo({
@@ -291,13 +482,6 @@ export default function ResultPage() {
         fromType,
         fromNickname: decodeURIComponent(fromNickname),
       });
-
-      // 저장된 닉네임이 있으면 설정하고, 없으면 모달 표시
-      if (savedNickname) {
-        setNickname(savedNickname);
-      } else {
-        setShowModal(true);
-      }
 
       // 궁합 정보 설정
       const myType = result.type;
@@ -427,13 +611,10 @@ export default function ResultPage() {
             >
               <div className="relative w-full max-w-xs mx-auto flex justify-center">
                 <div className="absolute inset-0 bg-purple-200 rounded-xl blur-xl opacity-20"></div>
-                <Image
-                  src={reaction.img}
-                  alt="성향 반응 이미지"
-                  width={300}
-                  height={300}
-                  className="relative rounded-xl shadow-lg hover:scale-105 transition-transform duration-300"
-                  priority
+                <ImageWithCardDownload
+                  originalImageSrc={reaction.img}
+                  type={result?.type}
+                  nickname={result?.nickname}
                 />
               </div>
             </motion.div>
@@ -527,8 +708,65 @@ export default function ResultPage() {
             </motion.div>
           )}
 
+          {/* URL 저장 안내 */}
+          <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-4">
+            <div className="flex items-start gap-3">
+              <div className="text-orange-500 text-xl">⚠️</div>
+              <div className="flex-1">
+                <h4 className="text-orange-800 font-semibold text-sm mb-1">
+                  중요! 마이페이지 URL을 저장해주세요
+                </h4>
+                <p className="text-orange-700 text-xs leading-relaxed mb-3">
+                  별도 로그인이 없어 이 URL을 잃어버리면 다시 접근할 수
+                  없습니다.
+                  <br />
+                  즐겨찾기에 추가하거나 메모해두시기 바랍니다.
+                </p>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={copyUrl}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                    isCopied
+                      ? "bg-green-500 text-white"
+                      : "bg-orange-500 hover:bg-orange-600 text-white"
+                  }`}
+                >
+                  {isCopied ? (
+                    <>
+                      <Check size={14} />
+                      복사 완료!
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={14} />
+                      URL 복사하기
+                    </>
+                  )}
+                </motion.button>
+              </div>
+            </div>
+          </div>
+          {/* 마이페이지 바로가기 버튼 (항상 노출) */}
+          <Link href={`${process.env.NEXT_PUBLIC_DOMAIN_URL || ""}/me/${uuid}`}>
+            <motion.button
+              whileHover={{
+                scale: 1.02,
+                boxShadow: "0 10px 25px -5px rgba(249, 115, 22, 0.4)",
+              }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-5 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl mb-6 border-2 border-orange-400/30 relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-50"></div>
+              <div className="relative flex items-center justify-center gap-2">
+                <span className="text-lg">🏠</span>
+                <span className="text-base">마이페이지로 바로가기</span>
+              </div>
+            </motion.button>
+          </Link>
+
           {/* 다시 테스트하기와 이메일 입력 섹션 */}
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 3.4, duration: 0.5 }}
@@ -585,11 +823,6 @@ export default function ResultPage() {
                       </div>
                     </div>
                   </div>
-                  {/* <div className="mt-4 bg-yellow-50 rounded-lg p-2">
-                    <p className="text-sm text-yellow-700">
-                      ⚡️ 프리미엄 기능 출시 전 얼리버드 할인 혜택!
-                    </p>
-                  </div> */}
                 </div>
               </div>
             </div>
@@ -598,7 +831,7 @@ export default function ResultPage() {
               type={result?.type}
               nickname={nickname}
             />
-          </motion.div>
+          </motion.div> */}
 
           {/* 공유 버튼 섹션 */}
           <motion.div
@@ -608,7 +841,7 @@ export default function ResultPage() {
             className="mt-12 space-y-6"
           >
             <div className="relative">
-              <div className="absolute -top-6 left-1/2 -translate-x-1/2">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
@@ -638,14 +871,7 @@ export default function ResultPage() {
                   >
                     <Button
                       variant="outline"
-                      onClick={() => {
-                        if (!nickname) {
-                          setShowModal(true);
-                          setPendingShareType("kakao");
-                        } else {
-                          handleShare("kakao");
-                        }
-                      }}
+                      onClick={() => handleShare("kakao")}
                       className="relative w-full bg-yellow-400 hover:bg-yellow-500 border-yellow-500 h-[52px] rounded-xl group"
                     >
                       <div className="relative flex flex-col items-center justify-center gap-1">
@@ -669,14 +895,7 @@ export default function ResultPage() {
                   >
                     <Button
                       variant="outline"
-                      onClick={() => {
-                        if (!nickname) {
-                          setShowModal(true);
-                          setPendingShareType("link");
-                        } else {
-                          handleShare("link");
-                        }
-                      }}
+                      onClick={() => handleShare("link")}
                       className="relative w-full bg-white hover:bg-purple-50 border-purple-200 h-[52px] rounded-xl group"
                     >
                       <div className="relative flex flex-col items-center justify-center gap-1">
@@ -707,14 +926,7 @@ export default function ResultPage() {
                   >
                     <Button
                       variant="outline"
-                      onClick={() => {
-                        if (!nickname) {
-                          setShowModal(true);
-                          setPendingShareType("twitter");
-                        } else {
-                          handleShare("twitter");
-                        }
-                      }}
+                      onClick={() => handleShare("twitter")}
                       className="relative w-full bg-black hover:bg-gray-900 border-gray-800 h-[52px] rounded-xl group"
                     >
                       <div className="relative flex flex-col items-center justify-center gap-1">
@@ -741,14 +953,7 @@ export default function ResultPage() {
                   >
                     <Button
                       variant="outline"
-                      onClick={() => {
-                        if (!nickname) {
-                          setShowModal(true);
-                          setPendingShareType("instagram");
-                        } else {
-                          handleShare("instagram");
-                        }
-                      }}
+                      onClick={() => handleShare("instagram")}
                       className="relative w-full bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 hover:opacity-90 border-transparent h-[52px] rounded-xl group"
                     >
                       <div className="relative flex flex-col items-center justify-center gap-1">
@@ -773,7 +978,14 @@ export default function ResultPage() {
               </div>
             </div>
             <button
-              onClick={() => (window.location.href = "/quiz/q1")}
+              onClick={() => {
+                // Q1~Q10 로컬 스토리지 데이터 삭제
+                for (let i = 1; i <= 10; i++) {
+                  localStorage.removeItem(`Q${i}`);
+                }
+                // 퀴즈 시작 페이지로 이동
+                window.location.href = "/quiz/q1";
+              }}
               className="w-full bg-gray-200 hover:bg-gray-300 text-black font-medium py-3 rounded-xl"
             >
               🔄 다시 테스트하기
@@ -785,20 +997,8 @@ export default function ResultPage() {
       {showModal && (
         <NicknameModal
           isOpen={showModal}
-          onClose={() => {
-            closeModal();
-            setPendingShareType(null);
-          }}
-          onConfirm={
-            fromInfo
-              ? confirmNickname
-              : (nickname: string) => {
-                  if (pendingShareType) {
-                    confirmNicknameAndShare(nickname, pendingShareType);
-                    setPendingShareType(null);
-                  }
-                }
-          }
+          onClose={closeModal}
+          onConfirm={confirmNickname}
           isShared={!!fromInfo}
         />
       )}

@@ -83,7 +83,8 @@ export default function NicknameModal({
                 : "bg-purple-600 hover:bg-purple-700"
             }`}
           >
-            {isShared ? "입력하기" : "공유하기"}
+            {/* {isShared ? "입력하기" : "공유하기"} */}
+            저장하기
           </Button>
         </div>
       </div>

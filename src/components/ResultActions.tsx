@@ -4,6 +4,7 @@ import * as React from "react";
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { Copy, Check } from "lucide-react";
 
 interface ResultActionsProps {
   uuid: string | null;
@@ -89,7 +90,7 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
                 whileTap={{ scale: 0.98 }}
                 className="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-3 rounded-xl transition-colors"
               >
-                📄 마이페이지로 바로가기
+                마이페이지로 바로가기
               </motion.button>
             </Link>
           )}
@@ -100,6 +101,18 @@ export function ResultActions({ uuid, type, nickname }: ResultActionsProps) {
 
   return (
     <div className="space-y-4">
+      {/* 구분선 */}
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-200"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-4 bg-white text-gray-500">
+            또는 이메일로 결과 받기
+          </span>
+        </div>
+      </div>
+
       <div className="space-y-2">
         <div className="relative">
           <input

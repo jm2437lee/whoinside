@@ -1,6 +1,6 @@
 "use client";
 
-import { Users, Sparkles, Brain, Heart } from "lucide-react";
+import { Users, Sparkles, Brain, Heart, Copy, Check } from "lucide-react";
 import compatibilityDescriptions from "@/data/compatibilityDescriptions.json";
 import typeDescriptions from "@/data/typeDescriptions.json";
 import Image from "next/image";
@@ -36,6 +36,7 @@ export function MyPageContent({
   const [pendingShareType, setPendingShareType] = useState<
     "kakao" | "link" | "twitter" | "instagram" | null
   >(null);
+  const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
     if (window.Kakao && !window.Kakao.isInitialized()) {
@@ -70,6 +71,59 @@ export function MyPageContent({
     setTimeout(() => {
       toast.remove();
     }, 3000);
+  };
+
+  const copyCurrentUrl = async () => {
+    const currentUrl = window.location.href;
+
+    // 1차 시도: Modern Clipboard API
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(currentUrl);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+        return;
+      } catch (err) {
+        console.warn("Clipboard API failed, trying fallback method:", err);
+      }
+    }
+
+    // 2차 시도: 텍스트 선택 방식 (모바일 호환)
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = currentUrl;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      const result = document.execCommand("copy");
+      document.body.removeChild(textArea);
+
+      if (result) {
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+        return;
+      }
+    } catch (err) {
+      console.warn("Fallback copy method failed:", err);
+    }
+
+    // 3차 시도: 모바일에서 텍스트 선택 후 사용자가 복사하도록 안내
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+      const result = prompt("아래 URL을 길게 누르고 복사해주세요:", currentUrl);
+      if (result === null) {
+        // 사용자가 취소하지 않았다면 복사된 것으로 간주
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      }
+    } else {
+      // 데스크톱에서는 alert로 URL 제공
+      alert(`URL 복사에 실패했습니다. 직접 복사해주세요:\n${currentUrl}`);
+    }
   };
 
   const handleKakaoShare = () => {
@@ -195,6 +249,51 @@ export function MyPageContent({
       />
       <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white py-10 px-6">
         <div className="max-w-3xl mx-auto space-y-8">
+          {/* URL 저장 안내 */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-orange-50 border border-orange-200 rounded-xl p-4"
+          >
+            <div className="flex items-start gap-3">
+              <div className="text-orange-500 text-xl">⚠️</div>
+              <div className="flex-1">
+                <h4 className="text-orange-800 font-semibold text-sm mb-1">
+                  중요! 마이페이지 URL을 저장해주세요
+                </h4>
+                <p className="text-orange-700 text-xs leading-relaxed mb-3">
+                  별도 로그인이 없어 이 URL을 잃어버리면 다시 접근할 수
+                  없습니다.
+                  <br />
+                  즐겨찾기에 추가하거나 메모해두시기 바랍니다.
+                </p>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={copyCurrentUrl}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                    isCopied
+                      ? "bg-green-500 text-white"
+                      : "bg-orange-500 hover:bg-orange-600 text-white"
+                  }`}
+                >
+                  {isCopied ? (
+                    <>
+                      <Check size={14} />
+                      복사 완료!
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={14} />
+                      URL 복사하기
+                    </>
+                  )}
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
+
           {/* 무료 리포트 섹션 */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -297,6 +396,93 @@ export function MyPageContent({
             </h1>
           </motion.div>
           {/* 공유 섹션 */}
+
+          {connections.length === 0 ? (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="text-center text-gray-600 mt-10"
+            >
+              아직 공유를 통해 들어온 친구가 없습니다.
+            </motion.p>
+          ) : (
+            <div className="space-y-8">
+              {connections.map((connection, index) => {
+                const compatibility = getCompatibility(myType, connection.type);
+                if (!compatibility) return null;
+
+                return (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 * index, duration: 0.5 }}
+                    className="bg-white rounded-xl shadow-md border border-purple-100 overflow-hidden"
+                  >
+                    {/* 헤더 */}
+                    <div className="p-6 border-b border-purple-100">
+                      <h2 className="text-xl font-bold text-gray-800 text-center">
+                        {connection.nickname}님과의 궁합
+                      </h2>
+                      <p className="text-purple-600 font-medium text-center mt-2">
+                        &quot;{compatibility.title}&quot;
+                      </p>
+                    </div>
+
+                    {/* 요약 */}
+                    <div className="bg-purple-50 p-6">
+                      <p className="text-gray-700 text-center leading-relaxed">
+                        {compatibility.summary}
+                      </p>
+                    </div>
+
+                    {/* 상세 정보 */}
+                    <div className="p-6 space-y-4">
+                      {/* 잘 맞는 부분 */}
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 * index + 0.3, duration: 0.5 }}
+                        className="p-4 bg-green-50 rounded-lg border border-green-100"
+                      >
+                        <h3 className="flex items-center gap-2 font-bold text-green-700 mb-2">
+                          <span className="text-xl">👍</span> 잘 맞는 부분
+                        </h3>
+                        <p className="text-gray-700">{compatibility.good}</p>
+                      </motion.div>
+
+                      {/* 주의할 점 */}
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 * index + 0.4, duration: 0.5 }}
+                        className="p-4 bg-red-50 rounded-lg border border-red-100"
+                      >
+                        <h3 className="flex items-center gap-2 font-bold text-red-700 mb-2">
+                          <span className="text-xl">⚠️</span> 주의할 점
+                        </h3>
+                        <p className="text-gray-700">{compatibility.caution}</p>
+                      </motion.div>
+
+                      {/* 조언 */}
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 * index + 0.5, duration: 0.5 }}
+                        className="p-4 bg-purple-50 rounded-lg border border-purple-100"
+                      >
+                        <h3 className="flex items-center gap-2 font-bold text-purple-700 mb-2">
+                          <span className="text-xl">💡</span> 조언
+                        </h3>
+                        <p className="text-gray-700">{compatibility.advice}</p>
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -415,93 +601,6 @@ export function MyPageContent({
               </motion.div>
             </div>
           </motion.div>
-
-          {connections.length === 0 ? (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className="text-center text-gray-600 mt-10"
-            >
-              아직 공유를 통해 들어온 친구가 없습니다.
-            </motion.p>
-          ) : (
-            <div className="space-y-8">
-              {connections.map((connection, index) => {
-                const compatibility = getCompatibility(myType, connection.type);
-                if (!compatibility) return null;
-
-                return (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 * index, duration: 0.5 }}
-                    className="bg-white rounded-xl shadow-md border border-purple-100 overflow-hidden"
-                  >
-                    {/* 헤더 */}
-                    <div className="p-6 border-b border-purple-100">
-                      <h2 className="text-xl font-bold text-gray-800 text-center">
-                        {connection.nickname}님과의 궁합
-                      </h2>
-                      <p className="text-purple-600 font-medium text-center mt-2">
-                        &quot;{compatibility.title}&quot;
-                      </p>
-                    </div>
-
-                    {/* 요약 */}
-                    <div className="bg-purple-50 p-6">
-                      <p className="text-gray-700 text-center leading-relaxed">
-                        {compatibility.summary}
-                      </p>
-                    </div>
-
-                    {/* 상세 정보 */}
-                    <div className="p-6 space-y-4">
-                      {/* 잘 맞는 부분 */}
-                      <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 * index + 0.3, duration: 0.5 }}
-                        className="p-4 bg-green-50 rounded-lg border border-green-100"
-                      >
-                        <h3 className="flex items-center gap-2 font-bold text-green-700 mb-2">
-                          <span className="text-xl">👍</span> 잘 맞는 부분
-                        </h3>
-                        <p className="text-gray-700">{compatibility.good}</p>
-                      </motion.div>
-
-                      {/* 주의할 점 */}
-                      <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 * index + 0.4, duration: 0.5 }}
-                        className="p-4 bg-red-50 rounded-lg border border-red-100"
-                      >
-                        <h3 className="flex items-center gap-2 font-bold text-red-700 mb-2">
-                          <span className="text-xl">⚠️</span> 주의할 점
-                        </h3>
-                        <p className="text-gray-700">{compatibility.caution}</p>
-                      </motion.div>
-
-                      {/* 조언 */}
-                      <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 * index + 0.5, duration: 0.5 }}
-                        className="p-4 bg-purple-50 rounded-lg border border-purple-100"
-                      >
-                        <h3 className="flex items-center gap-2 font-bold text-purple-700 mb-2">
-                          <span className="text-xl">💡</span> 조언
-                        </h3>
-                        <p className="text-gray-700">{compatibility.advice}</p>
-                      </motion.div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
         </div>
       </div>
     </>
