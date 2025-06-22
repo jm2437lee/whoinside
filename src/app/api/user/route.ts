@@ -1,8 +1,48 @@
 import { db } from "@/app/lib/db";
 import { users } from "@/app/lib/schema";
 import { eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import nodemailer from "nodemailer";
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const uuid = searchParams.get("uuid");
+
+    if (!uuid) {
+      return NextResponse.json(
+        { success: false, message: "UUID is required" },
+        { status: 400 }
+      );
+    }
+
+    // UUID로 사용자 조회
+    const user = await db.select().from(users).where(eq(users.uuid, uuid));
+
+    if (user.length === 0) {
+      return NextResponse.json(
+        { success: false, message: "User not found" },
+        { status: 404 }
+      );
+    }
+
+    const userData = user[0];
+
+    return NextResponse.json({
+      id: userData.uuid,
+      nickname: userData.nickname,
+      result: userData.type,
+      createdAt: userData.createdAt,
+      is_paid: userData.is_paid,
+    });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return NextResponse.json(
+      { success: false, message: "Server error" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(req: Request) {
   try {

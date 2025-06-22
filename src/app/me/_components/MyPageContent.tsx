@@ -4,6 +4,7 @@ import { Users, Sparkles, Brain, Heart, Copy, Check } from "lucide-react";
 import compatibilityDescriptions from "@/data/compatibilityDescriptions.json";
 import typeDescriptions from "@/data/typeDescriptions.json";
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
@@ -381,6 +382,94 @@ export function MyPageContent({
                 </motion.div>
               </div>
             )}
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-2xl p-8 border-2 border-indigo-100 shadow-lg relative overflow-hidden mb-8"
+          >
+            {/* 배경 장식 */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-200/30 to-purple-200/30 rounded-full -translate-y-16 translate-x-16"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-pink-200/30 to-purple-200/30 rounded-full translate-y-12 -translate-x-12"></div>
+
+            <div className="relative z-10">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 mb-4">
+                  더 알고 싶은 당신에게
+                </h3>
+                <div className="space-y-3 text-gray-700">
+                  <div className="flex items-center gap-3 bg-white/60 rounded-lg p-3 backdrop-blur-sm">
+                    <span className="text-indigo-500 font-semibold">•</span>
+                    <span>나랑 잘 맞는 사람은 누구일까?</span>
+                  </div>
+                  <div className="flex items-center gap-3 bg-white/60 rounded-lg p-3 backdrop-blur-sm">
+                    <span className="text-purple-500 font-semibold">•</span>
+                    <span>왜 관계에서 자꾸 상처받을까?</span>
+                  </div>
+                  <div className="flex items-center gap-3 bg-white/60 rounded-lg p-3 backdrop-blur-sm">
+                    <span className="text-pink-500 font-semibold">•</span>
+                    <span>감정을 조절하는 내 방식, 괜찮은 걸까?</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-center mb-6">
+                <p className="text-gray-700 leading-relaxed mb-4">
+                  <span className="text-lg">👀</span> 나의 감정 성향을 깊이 있게
+                  풀어주는
+                  <br />
+                  <span className="font-bold text-indigo-600 text-lg">
+                    5페이지 분량의 진짜 나를 알아보는 리포트
+                  </span>
+                  를 받아보세요.
+                </p>
+                <div className="bg-white/70 rounded-lg p-4 backdrop-blur-sm text-left max-w-md mx-auto">
+                  <div className="space-y-2 text-sm text-gray-700">
+                    <div className="flex items-center gap-2">
+                      <span className="text-indigo-500">-</span>
+                      <span>🧠 성향 상세 해석</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-indigo-500">-</span>
+                      <span>💞 유형별 궁합 분석</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-purple-500">-</span>
+                      <span>🛠️ 갈등 대응 전략</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-pink-500">-</span>
+                      <span>🧘 감정 관리 루틴</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-orange-500">-</span>
+                      <span>🧩 실제 사례 페르소나 매칭까지!</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-center gap-4">
+                <Link href={`/me/${uuid}/preview`}>
+                  <motion.button
+                    whileHover={{
+                      scale: 1.05,
+                      boxShadow: "0 10px 30px -5px rgba(79, 70, 229, 0.3)",
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-lg border-2 border-indigo-500/20 relative overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-50"></div>
+                    <div className="relative flex items-center gap-2">
+                      <span>상세 리포트 미리보기</span>
+                      <span className="text-lg">→</span>
+                    </div>
+                  </motion.button>
+                </Link>
+              </div>
+            </div>
           </motion.div>
 
           {/* 기존 궁합 섹션 */}

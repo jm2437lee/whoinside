@@ -1,6 +1,12 @@
 // /lib/schema.ts
 
-import { mysqlTable, bigint, varchar, timestamp } from "drizzle-orm/mysql-core";
+import {
+  mysqlTable,
+  bigint,
+  varchar,
+  timestamp,
+  tinyint,
+} from "drizzle-orm/mysql-core";
 
 // users 테이블
 export const users = mysqlTable("users", {
@@ -9,6 +15,7 @@ export const users = mysqlTable("users", {
   nickname: varchar("nickname", { length: 100 }).notNull(),
   type: varchar("type", { length: 3 }).notNull(),
   email: varchar("email", { length: 255 }),
+  is_paid: tinyint("is_paid").default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
