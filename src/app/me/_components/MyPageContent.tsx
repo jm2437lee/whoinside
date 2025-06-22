@@ -459,7 +459,13 @@ export function MyPageContent({
                       boxShadow: "0 10px 30px -5px rgba(79, 70, 229, 0.3)",
                     }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-lg border-2 border-indigo-500/20 relative overflow-hidden"
+                    className="text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-lg border-2 border-indigo-500/20 relative overflow-hidden"
+                    style={{
+                      backgroundColor: "#4f46e5",
+                      backgroundImage:
+                        "linear-gradient(to right, #4f46e5, #9333ea)",
+                      border: "2px solid rgba(79, 70, 229, 0.2)",
+                    }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-50"></div>
                     <div className="relative flex items-center gap-2">
