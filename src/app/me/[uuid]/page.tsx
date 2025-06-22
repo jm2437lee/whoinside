@@ -52,6 +52,7 @@ export default async function MyPage({ params }: MyPageProps) {
       email={myInfo.email}
       uuid={uuid}
       connections={connections}
+      isPaid={myInfo.is_paid === 1}
     />
   );
 }

@@ -19,6 +19,7 @@ interface MyPageContentProps {
     nickname: string;
     type: string;
   }[];
+  isPaid: boolean;
 }
 
 declare global {
@@ -33,6 +34,7 @@ export function MyPageContent({
   uuid,
   email,
   connections,
+  isPaid,
 }: MyPageContentProps) {
   const [pendingShareType, setPendingShareType] = useState<
     "kakao" | "link" | "twitter" | "instagram" | null
@@ -452,28 +454,53 @@ export function MyPageContent({
               </div>
 
               <div className="flex justify-center gap-4">
-                <Link href={`/me/${uuid}/preview`}>
-                  <motion.button
-                    whileHover={{
-                      scale: 1.05,
-                      boxShadow: "0 10px 30px -5px rgba(79, 70, 229, 0.3)",
-                    }}
-                    whileTap={{ scale: 0.95 }}
-                    className="text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-lg border-2 border-indigo-500/20 relative overflow-hidden"
-                    style={{
-                      backgroundColor: "#4f46e5",
-                      backgroundImage:
-                        "linear-gradient(to right, #4f46e5, #9333ea)",
-                      border: "2px solid rgba(79, 70, 229, 0.2)",
-                    }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-50"></div>
-                    <div className="relative flex items-center gap-2">
-                      <span>상세 리포트 미리보기</span>
-                      <span className="text-lg">→</span>
-                    </div>
-                  </motion.button>
-                </Link>
+                {isPaid ? (
+                  <Link href={`/me/${uuid}/report`}>
+                    <motion.button
+                      whileHover={{
+                        scale: 1.05,
+                        boxShadow: "0 10px 30px -5px rgba(34, 197, 94, 0.3)",
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                      className="text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-lg border-2 border-green-500/20 relative overflow-hidden"
+                      style={{
+                        backgroundColor: "#22c55e",
+                        backgroundImage:
+                          "linear-gradient(to right, #22c55e, #16a34a)",
+                        border: "2px solid rgba(34, 197, 94, 0.2)",
+                      }}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-50"></div>
+                      <div className="relative flex items-center gap-2">
+                        <span>✨ 내 프리미엄 리포트 다시 보기</span>
+                        <span className="text-lg">→</span>
+                      </div>
+                    </motion.button>
+                  </Link>
+                ) : (
+                  <Link href={`/me/${uuid}/preview`}>
+                    <motion.button
+                      whileHover={{
+                        scale: 1.05,
+                        boxShadow: "0 10px 30px -5px rgba(79, 70, 229, 0.3)",
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                      className="text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-lg border-2 border-indigo-500/20 relative overflow-hidden"
+                      style={{
+                        backgroundColor: "#4f46e5",
+                        backgroundImage:
+                          "linear-gradient(to right, #4f46e5, #9333ea)",
+                        border: "2px solid rgba(79, 70, 229, 0.2)",
+                      }}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-50"></div>
+                      <div className="relative flex items-center gap-2">
+                        <span>상세 리포트 미리보기</span>
+                        <span className="text-lg">→</span>
+                      </div>
+                    </motion.button>
+                  </Link>
+                )}
               </div>
             </div>
           </motion.div>
