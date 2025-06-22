@@ -191,7 +191,8 @@ export default function PreviewPage({ params }: PreviewPageProps) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={scrollToUpgrade}
-              className="flex items-center gap-1 md:gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-3 py-2 md:px-6 md:py-3 rounded-lg transition-all shadow-lg text-sm md:text-base flex-shrink-0 ml-2"
+              className="flex items-center gap-1 md:gap-2 bg-purple-600 bg-gradient-to-r from-purple-600 to-pink-600 hover:bg-purple-700 hover:from-purple-700 hover:to-pink-700 text-white px-3 py-2 md:px-6 md:py-3 rounded-lg transition-all shadow-lg text-sm md:text-base flex-shrink-0 ml-2"
+              style={{ backgroundColor: "#9333ea" }}
             >
               <Lock size={16} className="md:w-5 md:h-5" />
               <span className="hidden sm:inline">전체 리포트 구매</span>
@@ -378,7 +379,8 @@ export default function PreviewPage({ params }: PreviewPageProps) {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={scrollToUpgrade}
-                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg transition-all shadow-lg"
+                          className="bg-purple-600 bg-gradient-to-r from-purple-600 to-pink-600 hover:bg-purple-700 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg transition-all shadow-lg"
+                          style={{ backgroundColor: "#9333ea" }}
                         >
                           전체 분석 보기
                         </motion.button>
@@ -460,7 +462,8 @@ export default function PreviewPage({ params }: PreviewPageProps) {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={scrollToUpgrade}
-                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg transition-all shadow-lg"
+                          className="bg-purple-600 bg-gradient-to-r from-purple-600 to-pink-600 hover:bg-purple-700 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg transition-all shadow-lg"
+                          style={{ backgroundColor: "#9333ea" }}
                         >
                           전체 분석 보기
                         </motion.button>
@@ -501,6 +504,7 @@ export default function PreviewPage({ params }: PreviewPageProps) {
                 whileTap={{ scale: 0.95 }}
                 onClick={handleUpgrade}
                 className="bg-white text-purple-600 font-bold px-8 py-4 rounded-xl text-lg hover:bg-gray-50 transition-all shadow-lg"
+                style={{ backgroundColor: "#ffffff", color: "#9333ea" }}
               >
                 전체 리포트 구매하기(₩1,000원)
               </motion.button>
