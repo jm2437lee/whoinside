@@ -59,13 +59,13 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         {/* Google AdSense - 스크립트만 로드 (초기화 없음) */}
-        {/*
+
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8283413819468215"
           crossOrigin="anonymous"
         ></script>
-        */}
+
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
